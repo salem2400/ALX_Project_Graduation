@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار</title>
+    <style>
+        .question { display: none; }
+        .selected { background-color: #e0e0e0; }
+        .choice { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <!-- صفحة البداية -->
+    <div class="landing-page">
+        <h1>مرحباً بك في الاختبار</h1>
+        <button onclick="showGameCategory()">ابدأ</button>
+    </div>
+
+    <!-- اختيار الفئة -->
+    <div class="game-category" style="display: none;">
+        <h2>اختر الفئة</h2>
+        <div id="categories">
+            <!-- سيتم إضافة الفئات هنا -->
+        </div>
+    </div>
+
+    <!-- قسم الاختبار -->
+    <div class="quiz" style="display: none;">
+        <div id="quiz-header">
+            <span id="timeRemaining">الوقت المتبقي: 0:00</span>
+            <span>السؤال: <span id="currentQuestion">1</span></span>
+        </div>
+
+        <div id="question"></div>
+        <div id="options-container"></div>
+
+        <div class="navigation-buttons">
+            <button id="prevQuestion" disabled>السابق</button>
+            <button id="nextQuestion">التالي</button>
+            <button id="submitQuiz" style="display: none;">إنهاء الاختبار</button>
+        </div>
+    </div>
+
+    <!-- القوالب للأسئلة -->
+    <template id="question-template">
+        <div class="question">
+            <h3 class="question-text"></h3>
+            <div class="choices"></div>
+        </div>
+    </template>
+
+<!-- استدعاء ملف جافا سكريبت -->
+<div id="quiz-data" 
+     data-quiz-id="{{ quiz.id }}"
+     data-time-limit="{{ quiz.time_limit }}"
+     data-questions="{{ quiz.questions|tojson|safe }}">
+</div>
+
+<script>
+    // تعريف متغير quiz الذي سيتم استخدامه في ملف script.js
+    const quizData = document.getElementById('quiz-data');
+    const quiz = {
+        id: parseInt(quizData.dataset.quizId),
+        time_limit: parseInt(quizData.dataset.timeLimit),
+        questions: JSON.parse(quizData.dataset.questions)
+    };
+</script>
+<script src="script.js"></script>
+</body>
+</html>
