@@ -1,36 +1,36 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <h1>Add New Question</h1>
-    <form method="POST">
+<div class="form-container">
+    <h1 class="text-center mb-4">Add New Question</h1>
+    <form method="POST" class="question-form">
         <div class="form-group">
-            <label for="question_text">Question Text</label>
-            <textarea class="form-control" id="question_text" name="question_text" rows="3" required></textarea>
+            <label for="question_text" class="form-label">Question Text</label>
+            <textarea class="form-control" id="question_text" name="question_text" rows="3" placeholder="Enter the question text" required></textarea>
         </div>
         
         <div class="form-group">
-            <label for="option1">Option 1</label>
-            <input type="text" class="form-control" id="option1" name="option1" required>
+            <label for="option1" class="form-label">Option 1</label>
+            <input type="text" class="form-control" id="option1" name="option1" placeholder="Enter option 1" required>
         </div>
         
         <div class="form-group">
-            <label for="option2">Option 2</label>
-            <input type="text" class="form-control" id="option2" name="option2" required>
+            <label for="option2" class="form-label">Option 2</label>
+            <input type="text" class="form-control" id="option2" name="option2" placeholder="Enter option 2" required>
         </div>
         
         <div class="form-group">
-            <label for="option3">Option 3</label>
-            <input type="text" class="form-control" id="option3" name="option3" required>
+            <label for="option3" class="form-label">Option 3</label>
+            <input type="text" class="form-control" id="option3" name="option3" placeholder="Enter option 3" required>
         </div>
         
         <div class="form-group">
-            <label for="option4">Option 4</label>
-            <input type="text" class="form-control" id="option4" name="option4" required>
+            <label for="option4" class="form-label">Option 4</label>
+            <input type="text" class="form-control" id="option4" name="option4" placeholder="Enter option 4" required>
         </div>
         
         <div class="form-group">
-            <label for="correct_answer">Correct Answer</label>
+            <label for="correct_answer" class="form-label">Correct Answer</label>
             <select class="form-control" id="correct_answer" name="correct_answer" required>
                 <option value="">Select correct answer</option>
                 <option value="option1">Option 1</option>
@@ -40,8 +40,10 @@
             </select>
         </div>
         
-        <button type="submit" class="btn btn-primary">Add Question</button>
-        <a href="{{ url_for('routes.custom_questions') }}" class="btn btn-secondary">Cancel</a>
+        <div class="form-actions text-center">
+            <button type="submit" class="btn btn-primary btn-lg">Add Question</button>
+            <a href="{{ url_for('routes.custom_questions') }}" class="btn btn-secondary btn-lg">Cancel</a>
+        </div>
     </form>
 </div>
 {% endblock %}

@@ -1,42 +1,58 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="quiz-details-container">
-    <h1>Quiz Details</h1>
-    
-    <div class="quiz-info">
-        <div class="info-card">
-            <h3>Date Taken</h3>
-            <p>{{ quiz_result.completed_at.strftime('%Y-%m-%d %H:%M') }}</p>
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Quiz Results</h1>
+        <p>Detailed analysis of your quiz performance</p>
+    </div>
+
+    <div class="quiz-stats">
+        <div class="stat-card">
+            <div class="stat-value">{{ quiz_result.score }}/{{ quiz_result.total_questions }}</div>
+            <div class="stat-label">Score</div>
+            <div class="stat-progress">
+                <div class="progress-bar" data-progress="{{ (quiz_result.score / quiz_result.total_questions) * 100 }}"></div>
+            </div>
         </div>
-        <div class="info-card">
-            <h3>Score</h3>
-            <p>{{ quiz_result.score }}/{{ quiz_result.total_questions }}</p>
+        
+        <div class="stat-card">
+            <div class="stat-value">{{ quiz_result.time_taken }}s</div>
+            <div class="stat-label">Time Taken</div>
+            <div class="stat-progress">
+                <div class="progress-bar" data-progress="{{ 100 - ((quiz_result.time_taken / 120) * 100) }}"></div>
+            </div>
         </div>
-        <div class="info-card">
-            <h3>Time Taken</h3>
-            <p>{{ quiz_result.time_taken }} seconds</p>
+        
+        <div class="stat-card">
+            <div class="stat-value">{{ quiz_result.completed_at.strftime('%Y-%m-%d %H:%M') }}</div>
+            <div class="stat-label">Date Taken</div>
         </div>
     </div>
 
-    <div class="questions-section">
-        <h2>Questions and Answers</h2>
+    <div class="questions-analysis">
+        <h2>Questions Analysis</h2>
         {% for question in questions %}
-        <div class="question-card {% if question.user_answer == question.correct_answer %}correct{% else %}incorrect{% endif %}">
-            <h3>Question {{ loop.index }}</h3>
-            <p>{{ question.text }}</p>
-            <div class="answers">
+        <div class="question-analysis-card {% if question.user_answer == question.correct_answer %}correct{% else %}incorrect{% endif %}">
+            <div class="question-number">Question {{ loop.index }}</div>
+            <div class="question-text">{{ question.text }}</div>
+            <div class="answers-container">
                 <div class="user-answer">
-                    <strong>Your Answer:</strong> {{ question.user_answer }}
+                    <div class="answer-label">Your Answer</div>
+                    <div class="answer-value">{{ question.user_answer }}</div>
                 </div>
                 <div class="correct-answer">
-                    <strong>Correct Answer:</strong> {{ question.correct_answer }}
+                    <div class="answer-label">Correct Answer</div>
+                    <div class="answer-value">{{ question.correct_answer }}</div>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
 
-    <a href="{{ url_for('routes.dashboard') }}" class="btn">Back to Dashboard</a>
+    <div class="navigation-buttons">
+        <a href="{{ url_for('routes.dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+        <a href="{{ url_for('routes.quiz') }}" class="btn btn-secondary">Take Another Quiz</a>
+    </div>
 </div>
 {% endblock %}

@@ -2,23 +2,31 @@
 
 {% block content %}
 <div class="quiz-container">
-    <h2>Quiz</h2>
-    
-    <div class="quiz-info">
-        <p>Question <span id="current-question">1</span> of <span id="total-questions">{{ questions|length }}</span></p>
-        <p>Time Remaining: <span id="timer">00:00</span></p>
+    <div class="quiz-header">
+        <h1>Quiz</h1>
+        <div class="quiz-progress">
+            <div class="progress-bar">
+                <div class="progress" style="width: 0%"></div>
+            </div>
+            <div class="progress-text">Question 1 of {{ questions|length }}</div>
+        </div>
+        <div class="timer">
+            <span class="timer-icon">⏱️</span>
+            <span id="timer">00:00</span>
+        </div>
     </div>
 
     <form id="quiz-form" method="POST" action="{{ url_for('routes.submit_quiz') }}">
         <div id="questions-container">
             {% for question in questions %}
-            <div class="question" id="question-{{ loop.index }}" {% if loop.index != 1 %}style="display: none;"{% endif %}>
-                <h3>{{ question.text }}</h3>
+            <div class="question-card" id="question-{{ loop.index }}" {% if loop.index != 1 %}style="display: none;"{% endif %}>
+                <div class="question-number">Question {{ loop.index }}</div>
+                <div class="question-text">{{ question.text }}</div>
                 <div class="options">
                     {% for option in question.options %}
-                    <label>
-                        <input type="radio" name="question-{{ loop.index }}" value="{{ option }}">
-                        {{ option }}
+                    <label class="option">
+                        <input type="radio" name="question-{{ loop.index }}" value="{{ option }}" onclick="handleOptionClick(this)">
+                        <span class="option-text">{{ option }}</span>
                     </label>
                     {% endfor %}
                 </div>
@@ -27,9 +35,9 @@
         </div>
 
         <div class="quiz-navigation">
-            <button type="button" id="prev-btn" disabled>Previous</button>
-            <button type="button" id="next-btn">Next</button>
-            <button type="submit" id="submit-btn" style="display: none;">Submit Quiz</button>
+            <button type="button" id="prev-btn" class="btn btn-prev" disabled>Previous</button>
+            <button type="button" id="next-btn" class="btn btn-next">Next</button>
+            <button type="submit" id="submit-btn" class="btn btn-submit" style="display: none;">Submit Quiz</button>
         </div>
     </form>
 </div>
@@ -44,10 +52,17 @@
         document.querySelectorAll('.question').forEach(q => {
             q.style.display = 'none';
         });
+        
         // Show current question
-        document.getElementById(`question-${questionNumber}`).style.display = 'block';
+        const currentQuestion = document.getElementById(`question-${questionNumber}`);
+        currentQuestion.style.display = 'block';
+        
+        // Smooth scroll to the question
+        currentQuestion.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
         // Update question counter
         document.getElementById('current-question').textContent = questionNumber;
+        
         // Update navigation buttons
         document.getElementById('prev-btn').disabled = (questionNumber === 1);
         document.getElementById('next-btn').disabled = (questionNumber === totalQuestions);
@@ -55,10 +70,34 @@
             (questionNumber === totalQuestions) ? 'inline-block' : 'none';
     }
 
+    function handleOptionClick(radio) {
+        // Uncheck if clicking the same option
+        if (radio.checked) {
+            const questionName = radio.name;
+            const allOptions = document.querySelectorAll(`input[name="${questionName}"]`);
+            
+            // Check if this option was already selected
+            if (radio.dataset.clicked === 'true') {
+                radio.checked = false;
+                radio.dataset.clicked = 'false';
+            } else {
+                // Uncheck other options
+                allOptions.forEach(opt => {
+                    if (opt !== radio) {
+                        opt.checked = false;
+                        opt.dataset.clicked = 'false';
+                    }
+                });
+                radio.dataset.clicked = 'true';
+            }
+        }
+    }
+
     function nextQuestion() {
         if (currentQuestion < totalQuestions) {
             currentQuestion++;
             showQuestion(currentQuestion);
+            updateProgress();
         }
     }
 
@@ -66,7 +105,14 @@
         if (currentQuestion > 1) {
             currentQuestion--;
             showQuestion(currentQuestion);
+            updateProgress();
         }
+    }
+
+    function updateProgress() {
+        const progress = ((currentQuestion) / totalQuestions) * 100;
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `Question ${currentQuestion} of ${totalQuestions}`;
     }
 
     function startTimer() {
@@ -80,10 +126,14 @@
             
             if (timeLeft <= 0) {
                 clearInterval(timer);
+                alert('Time is up! Submitting your quiz...');
                 document.getElementById('quiz-form').submit();
             }
             timeLeft--;
         }, 1000);
+        
+        // Save timer state
+        window.timerInterval = timer;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
