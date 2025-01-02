@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="quiz-details-container">
+    <h1>Quiz Details</h1>
+    
+    <div class="quiz-info">
+        <div class="info-card">
+            <h3>Date Taken</h3>
+            <p>{{ quiz_result.completed_at.strftime('%Y-%m-%d %H:%M') }}</p>
+        </div>
+        <div class="info-card">
+            <h3>Score</h3>
+            <p>{{ quiz_result.score }}/{{ quiz_result.total_questions }}</p>
+        </div>
+        <div class="info-card">
+            <h3>Time Taken</h3>
+            <p>{{ quiz_result.time_taken }} seconds</p>
+        </div>
+    </div>
+
+    <div class="questions-section">
+        <h2>Questions and Answers</h2>
+        {% for question in questions %}
+        <div class="question-card {% if question.user_answer == question.correct_answer %}correct{% else %}incorrect{% endif %}">
+            <h3>Question {{ loop.index }}</h3>
+            <p>{{ question.text }}</p>
+            <div class="answers">
+                <div class="user-answer">
+                    <strong>Your Answer:</strong> {{ question.user_answer }}
+                </div>
+                <div class="correct-answer">
+                    <strong>Correct Answer:</strong> {{ question.correct_answer }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <a href="{{ url_for('routes.dashboard') }}" class="btn">Back to Dashboard</a>
+</div>
+{% endblock %}

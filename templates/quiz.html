@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="quiz-container">
+    <h2>Quiz</h2>
+    
+    <div class="quiz-info">
+        <p>Question <span id="current-question">1</span> of <span id="total-questions">{{ questions|length }}</span></p>
+        <p>Time Remaining: <span id="timer">00:00</span></p>
+    </div>
+
+    <form id="quiz-form" method="POST" action="{{ url_for('routes.submit_quiz') }}">
+        <div id="questions-container">
+            {% for question in questions %}
+            <div class="question" id="question-{{ loop.index }}" {% if loop.index != 1 %}style="display: none;"{% endif %}>
+                <h3>{{ question.text }}</h3>
+                <div class="options">
+                    {% for option in question.options %}
+                    <label>
+                        <input type="radio" name="question-{{ loop.index }}" value="{{ option }}">
+                        {{ option }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="quiz-navigation">
+            <button type="button" id="prev-btn" disabled>Previous</button>
+            <button type="button" id="next-btn">Next</button>
+            <button type="submit" id="submit-btn" style="display: none;">Submit Quiz</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    let currentQuestion = 1;
+    const totalQuestions = document.querySelectorAll('.question').length;
+    const startTime = Date.now() / 1000;
+
+    function showQuestion(questionNumber) {
+        // Hide all questions
+        document.querySelectorAll('.question').forEach(q => {
+            q.style.display = 'none';
+        });
+        // Show current question
+        document.getElementById(`question-${questionNumber}`).style.display = 'block';
+        // Update question counter
+        document.getElementById('current-question').textContent = questionNumber;
+        // Update navigation buttons
+        document.getElementById('prev-btn').disabled = (questionNumber === 1);
+        document.getElementById('next-btn').disabled = (questionNumber === totalQuestions);
+        document.getElementById('submit-btn').style.display = 
+            (questionNumber === totalQuestions) ? 'inline-block' : 'none';
+    }
+
+    function nextQuestion() {
+        if (currentQuestion < totalQuestions) {
+            currentQuestion++;
+            showQuestion(currentQuestion);
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQuestion > 1) {
+            currentQuestion--;
+            showQuestion(currentQuestion);
+        }
+    }
+
+    function startTimer() {
+        const timerElement = document.getElementById('timer');
+        let timeLeft = 300; // 5 minutes
+        
+        const timer = setInterval(() => {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                document.getElementById('quiz-form').submit();
+            }
+            timeLeft--;
+        }, 1000);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        showQuestion(1);
+        startTimer();
+        
+        document.getElementById('next-btn').addEventListener('click', nextQuestion);
+        document.getElementById('prev-btn').addEventListener('click', prevQuestion);
+    });
+</script>
+{% endblock %}

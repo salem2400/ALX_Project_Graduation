@@ -1,0 +1,51 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Application</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="{{ url_for('routes.home') }}" class="logo">Quiz App</a>
+            <div class="nav-links">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('routes.dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('routes.custom_questions') }}">My Questions</a>
+                    <a href="{{ url_for('routes.logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('routes.login') }}">Login</a>
+                    <a href="{{ url_for('routes.register') }}">Register</a>
+                {% endif %}
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <span id="theme-icon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <script src="{{ url_for('static', filename='dark-mode.js') }}"></script>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Quiz Application</p>
+        </div>
+    </footer>
+</body>
+</html>

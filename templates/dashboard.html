@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Your Dashboard</h1>
+        <p>Track your progress and performance</p>
+    </div>
+
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-value">{{ quiz_results|length }}</div>
+            <div class="stat-label">Quizzes Taken</div>
+            <div class="stat-progress">
+                <div class="progress-bar" data-progress="{{ (quiz_results|length / 10) * 100 }}"></div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-value">
+                {% if quiz_results %}
+                    {{ (quiz_results|sum(attribute='score') / quiz_results|length)|round(1) }}%
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+            <div class="stat-label">Average Score</div>
+            <div class="stat-progress">
+                <div class="progress-bar" data-progress="{% if quiz_results %}{{ (quiz_results|sum(attribute='score') / (quiz_results|length * quiz_results[0].total_questions)) * 100 }}{% else %}0{% endif %}"></div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-value">
+                {% if quiz_results %}
+                    {{ (quiz_results|sum(attribute='time_taken') / quiz_results|length)|round(1) }}s
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+            <div class="stat-label">Avg Time</div>
+            <div class="stat-progress">
+                <div class="progress-bar" data-progress="{% if quiz_results %}{{ 100 - ((quiz_results|sum(attribute='time_taken') / quiz_results|length) / 120 * 100) }}{% else %}0{% endif %}"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="quiz-history">
+        <h2>Quiz History</h2>
+        {% if quiz_results %}
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Score</th>
+                            <th>Time Taken</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in quiz_results %}
+                        <tr>
+                            <td>{{ result.completed_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ result.score }}/{{ result.total_questions }}</td>
+                            <td>{{ result.time_taken }}s</td>
+                            <td>
+                                <a href="{{ url_for('routes.quiz_details', quiz_id=result.id) }}" class="btn btn-small">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📊</div>
+                <h3>No quiz results yet</h3>
+                <p>Take a quiz to see your results here!</p>
+                <a href="{{ url_for('routes.quiz') }}" class="btn">Start Quiz</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const progressBars = document.querySelectorAll('.progress-bar');
+        progressBars.forEach(bar => {
+            const progress = bar.getAttribute('data-progress');
+            bar.style.width = progress + '%';
+        });
+    });
+</script>
+{% endblock %}
