@@ -1,58 +1,60 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="dashboard-container">
-    <div class="dashboard-header">
-        <h1>Quiz Results</h1>
-        <p>Detailed analysis of your quiz performance</p>
-    </div>
+<div class="quiz-results-container">
+    <h1 class="quiz-title">Quiz Results</h1>
+    <p class="quiz-subtitle">Your performance summary</p>
 
-    <div class="quiz-stats">
-        <div class="stat-card">
-            <div class="stat-value">{{ quiz_result.score }}/{{ quiz_result.total_questions }}</div>
-            <div class="stat-label">Score</div>
-            <div class="stat-progress">
-                <div class="progress-bar" data-progress="{{ (quiz_result.score / quiz_result.total_questions) * 100 }}"></div>
-            </div>
+    <div class="results-summary">
+        <div class="summary-card">
+            <h2>Score</h2>
+            <p>{{ quiz_result.score }}/{{ quiz_result.total_questions }}</p>
         </div>
-        
-        <div class="stat-card">
-            <div class="stat-value">{{ quiz_result.time_taken }}s</div>
-            <div class="stat-label">Time Taken</div>
-            <div class="stat-progress">
-                <div class="progress-bar" data-progress="{{ 100 - ((quiz_result.time_taken / 120) * 100) }}"></div>
-            </div>
+        <div class="summary-card">
+            <h2>Date Taken</h2>
+            <p>{{ quiz_result.completed_at.strftime('%Y-%m-%d %H:%M') }}</p>
         </div>
-        
-        <div class="stat-card">
-            <div class="stat-value">{{ quiz_result.completed_at.strftime('%Y-%m-%d %H:%M') }}</div>
-            <div class="stat-label">Date Taken</div>
+        <div class="summary-card">
+            <h2>Time Taken</h2>
+            <p>{{ quiz_result.time_taken }} seconds</p>
         </div>
     </div>
 
-    <div class="questions-analysis">
-        <h2>Questions Analysis</h2>
-        {% for question in questions %}
-        <div class="question-analysis-card {% if question.user_answer == question.correct_answer %}correct{% else %}incorrect{% endif %}">
-            <div class="question-number">Question {{ loop.index }}</div>
-            <div class="question-text">{{ question.text }}</div>
-            <div class="answers-container">
-                <div class="user-answer">
-                    <div class="answer-label">Your Answer</div>
-                    <div class="answer-value">{{ question.user_answer }}</div>
-                </div>
-                <div class="correct-answer">
-                    <div class="answer-label">Correct Answer</div>
-                    <div class="answer-value">{{ question.correct_answer }}</div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
+    <h2 class="analysis-title">Questions Analysis</h2>
+    <table class="analysis-table">
+        <thead>
+            <tr>
+                <th>Question</th>
+                <th>Status</th>
+                <th>Your Answer</th>
+                <th>Correct Answer</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for question in questions %}
+            <tr class="{% if question.user_answer == question.correct_answer %}correct{% else %}incorrect{% endif %}">
+                <td>{{ question.text }}</td>
+                <td>
+                    {% if question.user_answer == question.correct_answer %}
+                    <span class="status correct">✔️ Correct</span>
+                    {% else %}
+                    <span class="status incorrect">❌ Incorrect</span>
+                    {% endif %}
+                </td>
+                <td>{{ question.user_answer if question.user_answer else 'None' }}</td>
+                <td>{{ question.correct_answer }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
     <div class="navigation-buttons">
         <a href="{{ url_for('routes.dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
         <a href="{{ url_for('routes.quiz') }}" class="btn btn-secondary">Take Another Quiz</a>
     </div>
+
+    <footer class="site-footer">
+        <p>© 2023 Quiz Application. All rights reserved.</p>
+    </footer>
 </div>
 {% endblock %}

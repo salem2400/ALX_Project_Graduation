@@ -12,7 +12,7 @@
         </div>
         <div class="timer">
             <span class="timer-icon">⏱️</span>
-            <span id="timer">00:00</span>
+            <span id="timer">05:00</span>
         </div>
     </div>
 
@@ -25,7 +25,7 @@
                 <div class="options">
                     {% for option in question.options %}
                     <label class="option">
-                        <input type="radio" name="question-{{ loop.index }}" value="{{ option }}" onclick="handleOptionClick(this)">
+                        <input type="radio" name="question-{{ question.id }}" value="{{ option }}" onclick="handleOptionClick(this)">
                         <span class="option-text">{{ option }}</span>
                     </label>
                     {% endfor %}
@@ -44,28 +44,40 @@
 
 <script>
     let currentQuestion = 1;
-    const totalQuestions = document.querySelectorAll('.question').length;
+    const totalQuestions = document.querySelectorAll('.question-card').length;
     const startTime = Date.now() / 1000;
+    let progressBar, progressText; // Declare progress elements globally
 
     function showQuestion(questionNumber) {
         // Hide all questions
-        document.querySelectorAll('.question').forEach(q => {
+        document.querySelectorAll('.question-card').forEach(q => {
             q.style.display = 'none';
         });
         
         // Show current question
-        const currentQuestion = document.getElementById(`question-${questionNumber}`);
-        currentQuestion.style.display = 'block';
+        const questionElement = document.getElementById(`question-${questionNumber}`);
+        questionElement.style.display = 'block';
         
         // Smooth scroll to the question
-        currentQuestion.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (questionElement) {
+            questionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
         
-        // Update question counter
-        document.getElementById('current-question').textContent = questionNumber;
+        // Update progress text
+        progressText.textContent = `Question ${questionNumber} of ${totalQuestions}`;
         
-        // Update navigation buttons
-        document.getElementById('prev-btn').disabled = (questionNumber === 1);
-        document.getElementById('next-btn').disabled = (questionNumber === totalQuestions);
+        // Handle navigation buttons visibility
+        const navButtons = document.querySelector('.quiz-navigation');
+        if (totalQuestions === 1) {
+            navButtons.style.display = 'none';
+        } else {
+            navButtons.style.display = 'flex';
+            // Update navigation buttons
+            document.getElementById('prev-btn').disabled = (questionNumber === 1);
+            document.getElementById('next-btn').disabled = (questionNumber === totalQuestions);
+        }
+        
+        // Update submit button
         document.getElementById('submit-btn').style.display = 
             (questionNumber === totalQuestions) ? 'inline-block' : 'none';
     }
@@ -98,6 +110,8 @@
             currentQuestion++;
             showQuestion(currentQuestion);
             updateProgress();
+            // Save the current question state
+            sessionStorage.setItem('currentQuestion', currentQuestion);
         }
     }
 
@@ -106,7 +120,15 @@
             currentQuestion--;
             showQuestion(currentQuestion);
             updateProgress();
+            // Save the current question state
+            sessionStorage.setItem('currentQuestion', currentQuestion);
         }
+    }
+
+    // Initialize current question from session storage
+    const savedQuestion = sessionStorage.getItem('currentQuestion');
+    if (savedQuestion) {
+        currentQuestion = parseInt(savedQuestion);
     }
 
     function updateProgress() {
@@ -117,31 +139,102 @@
 
     function startTimer() {
         const timerElement = document.getElementById('timer');
-        let timeLeft = 300; // 5 minutes
+        const savedStartTime = sessionStorage.getItem('quizStartTime');
+        const quizDuration = 300; // 5 minutes in seconds
+        let timeLeft = quizDuration;
         
-        const timer = setInterval(() => {
+        // If timer was already running, calculate remaining time
+        if (savedStartTime) {
+            const elapsed = Math.floor((Date.now() - parseInt(savedStartTime)) / 1000);
+            timeLeft = Math.max(0, quizDuration - elapsed);
+        }
+        
+        // Clear any existing timer
+        if (window.timerInterval) {
+            clearInterval(window.timerInterval);
+        }
+        
+        // Start new timer
+        window.timerInterval = setInterval(() => {
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
-            timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
             if (timeLeft <= 0) {
-                clearInterval(timer);
+                clearInterval(window.timerInterval);
+                sessionStorage.removeItem('quizStartTime');
                 alert('Time is up! Submitting your quiz...');
                 document.getElementById('quiz-form').submit();
             }
             timeLeft--;
         }, 1000);
         
-        // Save timer state
-        window.timerInterval = timer;
+        // Save timer start time if not already saved
+        if (!savedStartTime) {
+            sessionStorage.setItem('quizStartTime', Date.now());
+        }
     }
 
+    // Clean up timer when leaving the page
+    window.addEventListener('beforeunload', () => {
+        if (window.timerInterval) {
+            clearInterval(window.timerInterval);
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
-        showQuestion(1);
-        startTimer();
-        
-        document.getElementById('next-btn').addEventListener('click', nextQuestion);
-        document.getElementById('prev-btn').addEventListener('click', prevQuestion);
+        try {
+            // Verify required elements exist
+            const requiredElements = [
+                '#quiz-form',
+                '.progress',
+                '.progress-text',
+                '#timer',
+                '#prev-btn',
+                '#next-btn',
+                '#submit-btn'
+            ];
+            
+            for (const selector of requiredElements) {
+                if (!document.querySelector(selector)) {
+                    throw new Error(`Required element not found: ${selector}`);
+                }
+            }
+
+            // Initialize current question
+            const savedQuestion = sessionStorage.getItem('currentQuestion');
+            currentQuestion = savedQuestion ? parseInt(savedQuestion) : 1;
+            
+            // Initialize progress elements
+            progressBar = document.querySelector('.progress');
+            progressText = document.querySelector('.progress-text');
+            
+            // Verify at least one question exists
+            if (totalQuestions === 0) {
+                throw new Error('No questions found');
+            }
+            
+            showQuestion(currentQuestion);
+            startTimer();
+            
+            // Add event listeners
+            const nextBtn = document.getElementById('next-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', nextQuestion);
+            }
+            
+            if (prevBtn) {
+                prevBtn.addEventListener('click', prevQuestion);
+            }
+            
+            // Update progress immediately
+            updateProgress();
+        } catch (error) {
+            console.error('Error initializing quiz:', error);
+            alert('An error occurred while initializing the quiz. Please refresh the page.');
+        }
     });
 </script>
 {% endblock %}

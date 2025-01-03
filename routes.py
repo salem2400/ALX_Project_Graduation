@@ -32,6 +32,11 @@ def add_question():
             flash('Please fill all fields', 'error')
             return redirect(url_for('routes.add_question'))
         
+        # Additional validation for correct_answer
+        if correct_answer not in [option1, option2, option3, option4]:
+            flash('Correct answer must be one of the options', 'error')
+            return redirect(url_for('routes.add_question'))
+        
         new_question = CustomQuestion(
             user_id=current_user.id,
             question_text=question_text,
@@ -81,13 +86,22 @@ def delete_question(question_id):
 def home():
     return render_template('index.html')
 
+def get_user_data():
+    """Utility function to retrieve user data from the request."""
+    username = request.form.get('username')
+    email = request.form.get('email')
+    password = request.form.get('password')
+    return username, email, password
+
 @routes_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        user = User.query.filter_by(username=username).first()
+        username, email, password = get_user_data()
+    if request.method == 'POST':
+         # username, email, password = get_user_data()  # This line is redundant
+        user = User.query.filter_by(email=email).first()
         
+        print(f"Attempting to log in user: {username} with password: {password}")  # Debugging
         if user and check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for('routes.dashboard'))
@@ -98,17 +112,17 @@ def login():
 def register():
     if request.method == 'POST':
         username = request.form.get('username')
-        email = request.form.get('email')
+        email = request.form.get('email')  # Ensure we are getting the email from the form
         password = request.form.get('password')
         
-        existing_user = User.query.filter((User.email == email) | (User.username == username)).first()
-        if existing_user:
-            if existing_user.email == email:
-                flash('Email already registered', 'error')
-            else:
-                flash('Username already taken', 'error')
+        email = request.form.get('email')  # Ensure we are getting the email from the form
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')  # Get the confirm password field
+
+        if password != confirm_password:
+            flash('Password mismatched', 'error')
             return redirect(url_for('routes.register'))
-            
+
         new_user = User(
             username=username,
             email=email,
@@ -164,6 +178,9 @@ def token_required(f):
 @login_required
 def quiz():
     questions = get_questions()
+    print(f"Loaded {len(questions)} questions")  # Debugging
+    for q in questions:
+        print(q)  # Debugging
     return render_template('quiz.html', questions=questions)
 
 @routes_bp.route('/submit_quiz', methods=['POST'])
