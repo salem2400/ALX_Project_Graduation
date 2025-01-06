@@ -11,14 +11,21 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 migrate = Migrate()
+
+# تكوين المسار المطلق لقاعدة البيانات
+basedir = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(basedir, 'instance', 'database.db')
+
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-default-secret-key')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your-default-jwt-secret-key')
 
 # Error handling for database connection
 try:
     db.init_app(app)
+    with app.app_context():
+        db.create_all()
     migrate.init_app(app, db)
 except Exception as e:
     logger.error(f"Error initializing database: {e}")

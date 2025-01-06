@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="group-questions-container">
+    <div class="page-header">
+        <div class="header-info">
+            <h1>{{ group.name }}</h1>
+            <p class="group-description">{{ group.description or 'لا يوجد وصف' }}</p>
+            <div class="group-meta">
+                <span class="time-limit">
+                    <i class="fas fa-clock"></i>
+                    {% if group.time_limit >= 3600 %}
+                        {{ (group.time_limit / 3600)|int }} ساعة
+                    {% elif group.time_limit >= 60 %}
+                        {{ (group.time_limit / 60)|int }} دقيقة
+                    {% else %}
+                        {{ group.time_limit }} ثانية
+                    {% endif %}
+                </span>
+                <span class="question-count">
+                    <i class="fas fa-question-circle"></i>
+                    {{ group.questions|length }} سؤال
+                </span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <a href="{{ url_for('routes.add_question', group_id=group.id) }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                إضافة سؤال جديد
+            </a>
+            {% if group.questions %}
+            <a href="{{ url_for('routes.start_group_quiz', group_id=group.id) }}" class="btn btn-secondary">
+                <i class="fas fa-play"></i>
+                بدء الاختبار
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if group.questions %}
+    <div class="questions-grid">
+        {% for question in group.questions %}
+        <div class="question-card">
+            <div class="question-header">
+                <span class="question-number">#{{ loop.index }}</span>
+                <span class="question-date">{{ question.created_at.strftime('%Y-%m-%d') }}</span>
+            </div>
+            <div class="question-content">
+                <p class="question-text">{{ question.text }}</p>
+                <div class="options-list">
+                    {% for option in question.options %}
+                    <div class="option {% if option == question.correct_answer %}correct{% endif %}">
+                        {{ option }}
+                        {% if option == question.correct_answer %}
+                        <i class="fas fa-check-circle"></i>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="question-actions">
+                <button class="btn btn-edit" onclick="editQuestion('{{ question.id }}')">
+                    <i class="fas fa-edit"></i>
+                    تعديل
+                </button>
+                <button class="btn btn-delete" onclick="deleteQuestion('{{ question.id }}')">
+                    <i class="fas fa-trash"></i>
+                    حذف
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">❓</div>
+        <h2>لا توجد أسئلة في هذه المجموعة</h2>
+        <p>قم بإضافة أسئلة جديدة لبدء الاختبار!</p>
+        <a href="{{ url_for('routes.add_question', group_id=group.id) }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            إضافة سؤال جديد
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.group-questions-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    direction: rtl;
+}
+
+.page-header {
+    margin-bottom: 3rem;
+    background: linear-gradient(135deg, #1565C0, #0D47A1);
+    padding: 2rem;
+    border-radius: 15px;
+    color: white;
+    box-shadow: 0 4px 20px rgba(21, 101, 192, 0.3);
+}
+
+.header-info h1 {
+    font-size: 2.2rem;
+    margin: 0 0 1rem 0;
+}
+
+.group-description {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+}
+
+.group-meta {
+    display: flex;
+    gap: 2rem;
+    font-size: 1.1rem;
+}
+
+.time-limit, .question-count {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header-actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.questions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.question-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.question-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+}
+
+.question-header {
+    background: #f8f9fa;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.question-number {
+    font-weight: bold;
+    color: #1565C0;
+}
+
+.question-date {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.question-content {
+    padding: 1.5rem;
+}
+
+.question-text {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.options-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.option {
+    padding: 1rem;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.option.correct {
+    background: #e8f5e9;
+    border-color: #4CAF50;
+    color: #2e7d32;
+}
+
+.option.correct i {
+    color: #4CAF50;
+    margin-right: 0.5rem;
+}
+
+.question-actions {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: white;
+    color: #1565C0;
+}
+
+.btn-secondary {
+    background: #4CAF50;
+    color: white;
+}
+
+.btn-edit {
+    background: #FFC107;
+    color: #000;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+}
+
+.empty-state h2 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .group-questions-container {
+        padding: 1rem;
+    }
+
+    .page-header {
+        padding: 1.5rem;
+    }
+
+    .header-info h1 {
+        font-size: 1.8rem;
+    }
+
+    .group-meta {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .header-actions {
+        flex-direction: column;
+    }
+
+    .questions-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+function editQuestion(questionId) {
+    window.location.href = `/edit-question/${questionId}`;
+}
+
+function deleteQuestion(questionId) {
+    if (confirm('هل أنت متأكد من حذف هذا السؤال؟')) {
+        fetch(`/delete-question/${questionId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('حدث خطأ أثناء حذف السؤال');
+            }
+        });
+    }
+}
+</script>
+{% endblock %} 

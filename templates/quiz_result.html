@@ -1,36 +1,30 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="quiz-details-container">
-    <div class="details-header">
-        <h1>تفاصيل الاختبار</h1>
-        {% if quiz_result.is_custom_quiz and group %}
+<div class="result-container">
+    <div class="result-header">
+        <h1>نتيجة الاختبار</h1>
+        {% if group %}
         <h2>{{ group.name }}</h2>
         {% endif %}
     </div>
 
-    <div class="score-summary">
-        <div class="score-item">
-            <h3>النتيجة النهائية</h3>
-            <div class="score">{{ quiz_result.score }}/{{ quiz_result.total_questions }}</div>
-            <div class="percentage">
-                {{ (quiz_result.score / quiz_result.total_questions * 100) | round }}%
+    <div class="score-card">
+        <div class="score-info">
+            <div class="score-item">
+                <h3>النتيجة النهائية</h3>
+                <div class="score">{{ quiz_result.score }}/{{ quiz_result.total_questions }}</div>
+                <div class="percentage">
+                    {{ (quiz_result.score / quiz_result.total_questions * 100) | round }}%
+                </div>
             </div>
-        </div>
-        
-        <div class="score-item">
-            <h3>الوقت المستغرق</h3>
-            <div class="time">
-                <i class="fas fa-clock"></i>
-                <span>{{ quiz_result.time_taken // 60 }} دقيقة و {{ quiz_result.time_taken % 60 }} ثانية</span>
-            </div>
-        </div>
-
-        <div class="score-item">
-            <h3>تاريخ الاختبار</h3>
-            <div class="date">
-                <i class="fas fa-calendar"></i>
-                <span>{{ quiz_result.completed_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            
+            <div class="score-item">
+                <h3>الوقت المستغرق</h3>
+                <div class="time">
+                    <i class="fas fa-clock"></i>
+                    <span>{{ quiz_result.time_taken // 60 }} دقيقة و {{ quiz_result.time_taken % 60 }} ثانية</span>
+                </div>
             </div>
         </div>
     </div>
@@ -59,7 +53,7 @@
             <div class="answers">
                 <div class="user-answer {% if not question.is_correct %}incorrect{% endif %}">
                     <strong>إجابتك:</strong> 
-                    <span>{{ question.user_answer if question.user_answer else 'لم يتم الإجابة' }}</span>
+                    <span>{{ question.user_answer }}</span>
                 </div>
                 <div class="correct-answer">
                     <strong>الإجابة الصحيحة:</strong>
@@ -75,7 +69,7 @@
             <i class="fas fa-home"></i>
             العودة إلى لوحة التحكم
         </a>
-        {% if quiz_result.is_custom_quiz and group %}
+        {% if group %}
         <a href="{{ url_for('routes.start_group_quiz', group_id=group.id) }}" class="btn btn-secondary">
             <i class="fas fa-redo"></i>
             إعادة الاختبار
@@ -85,40 +79,40 @@
 </div>
 
 <style>
-.quiz-details-container {
+.result-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 2rem;
     direction: rtl;
 }
 
-.details-header {
+.result-header {
     text-align: center;
     margin-bottom: 2rem;
 }
 
-.details-header h1 {
+.result-header h1 {
     color: #1565C0;
     margin-bottom: 0.5rem;
 }
 
-.details-header h2 {
+.result-header h2 {
     color: #666;
     font-weight: normal;
 }
 
-.score-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
-    margin-bottom: 3rem;
-}
-
-.score-item {
+.score-card {
     background: white;
     border-radius: 15px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    padding: 1.5rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.score-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
     text-align: center;
 }
 
@@ -138,7 +132,7 @@
     color: #4CAF50;
 }
 
-.time, .date {
+.time {
     font-size: 1.2rem;
     color: #666;
     display: flex;
@@ -272,11 +266,11 @@
 }
 
 @media (max-width: 768px) {
-    .quiz-details-container {
+    .result-container {
         padding: 1rem;
     }
     
-    .score-summary {
+    .score-info {
         grid-template-columns: 1fr;
     }
     
@@ -290,4 +284,4 @@
     }
 }
 </style>
-{% endblock %} 
+{% endblock %}

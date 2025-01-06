@@ -1,46 +1,376 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <h1>Edit Question</h1>
-    <form method="POST">
-        <div class="form-group">
-            <label for="question_text">Question Text</label>
-            <textarea class="form-control" id="question_text" name="question_text" rows="3" required>{{ question.question_text }}</textarea>
+<div class="container mt-5">
+    <div class="edit-question-container">
+        <div class="card">
+            <div class="card-header">
+                <div class="header-content">
+                    <div class="header-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <div class="header-text">
+                        <h2>تعديل السؤال</h2>
+                        <p class="text-muted">قم بتعديل تفاصيل السؤال بالأسفل</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="POST" class="needs-validation" novalidate>
+                    {{ form.csrf_token }}
+                    
+                    <div class="form-group mb-4">
+                        <label for="text" class="form-label">
+                            <i class="fas fa-question-circle"></i>
+                            نص السؤال
+                        </label>
+                        {{ form.text(class="form-control custom-input", id="text", required=true, placeholder="اكتب نص السؤال هنا...") }}
+                    </div>
+
+                    <div class="options-section">
+                        <h3 class="options-title">
+                            <i class="fas fa-list-ul"></i>
+                            خيارات الإجابة
+                        </h3>
+                        <div class="options-grid">
+                            <div class="form-group option-card">
+                                <label for="option1" class="form-label">
+                                    <i class="fas fa-check-circle text-primary"></i>
+                                    الخيار الأول
+                                </label>
+                                {{ form.option1(class="form-control custom-input", id="option1", required=true, placeholder="اكتب الخيار الأول...") }}
+                            </div>
+
+                            <div class="form-group option-card">
+                                <label for="option2" class="form-label">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    الخيار الثاني
+                                </label>
+                                {{ form.option2(class="form-control custom-input", id="option2", required=true, placeholder="اكتب الخيار الثاني...") }}
+                            </div>
+
+                            <div class="form-group option-card">
+                                <label for="option3" class="form-label">
+                                    <i class="fas fa-check-circle text-info"></i>
+                                    الخيار الثالث
+                                </label>
+                                {{ form.option3(class="form-control custom-input", id="option3", required=true, placeholder="اكتب الخيار الثالث...") }}
+                            </div>
+
+                            <div class="form-group option-card">
+                                <label for="option4" class="form-label">
+                                    <i class="fas fa-check-circle text-warning"></i>
+                                    الخيار الرابع
+                                </label>
+                                {{ form.option4(class="form-control custom-input", id="option4", required=true, placeholder="اكتب الخيار الرابع...") }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-4 correct-answer-section">
+                        <label for="correct_answer" class="form-label">
+                            <i class="fas fa-star text-warning"></i>
+                            الإجابة الصحيحة
+                        </label>
+                        {{ form.correct_answer(class="form-control custom-select", id="correct_answer", required=true) }}
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-with-icon">
+                            <i class="fas fa-save"></i>
+                            حفظ التغييرات
+                        </button>
+                        <a href="{{ url_for('routes.custom_questions') }}" class="btn btn-secondary btn-with-icon">
+                            <i class="fas fa-times"></i>
+                            إلغاء
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
-        
-        <div class="form-group">
-            <label for="option1">Option 1</label>
-            <input type="text" class="form-control" id="option1" name="option1" value="{{ question.option1 }}" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="option2">Option 2</label>
-            <input type="text" class="form-control" id="option2" name="option2" value="{{ question.option2 }}" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="option3">Option 3</label>
-            <input type="text" class="form-control" id="option3" name="option3" value="{{ question.option3 }}" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="option4">Option 4</label>
-            <input type="text" class="form-control" id="option4" name="option4" value="{{ question.option4 }}" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="correct_answer">Correct Answer</label>
-            <select class="form-control" id="correct_answer" name="correct_answer" required>
-                <option value="option1" {% if question.correct_answer == 'option1' %}selected{% endif %}>Option 1</option>
-                <option value="option2" {% if question.correct_answer == 'option2' %}selected{% endif %}>Option 2</option>
-                <option value="option3" {% if question.correct_answer == 'option3' %}selected{% endif %}>Option 3</option>
-                <option value="option4" {% if question.correct_answer == 'option4' %}selected{% endif %}>Option 4</option>
-            </select>
-        </div>
-        
-        <button type="submit" class="btn btn-primary">Update Question</button>
-        <a href="{{ url_for('routes.custom_questions') }}" class="btn btn-secondary">Cancel</a>
-    </form>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const correctAnswerSelect = document.getElementById('correct_answer');
+    const options = [
+        document.getElementById('option1'),
+        document.getElementById('option2'),
+        document.getElementById('option3'),
+        document.getElementById('option4')
+    ];
+
+    options.forEach(option => {
+        option.addEventListener('input', updateCorrectAnswerOptions);
+    });
+
+    function updateCorrectAnswerOptions() {
+        const currentValue = correctAnswerSelect.value;
+        while (correctAnswerSelect.firstChild) {
+            correctAnswerSelect.removeChild(correctAnswerSelect.firstChild);
+        }
+        
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'اختر الإجابة الصحيحة';
+        correctAnswerSelect.appendChild(defaultOption);
+        
+        options.forEach((option, index) => {
+            if (option.value.trim()) {
+                const newOption = document.createElement('option');
+                newOption.value = option.value;
+                newOption.textContent = option.value;
+                correctAnswerSelect.appendChild(newOption);
+                
+                if (option.value === currentValue) {
+                    correctAnswerSelect.value = currentValue;
+                }
+            }
+        });
+    }
+
+    updateCorrectAnswerOptions();
+
+    // إضافة تأثيرات حركية للحقول
+    const inputs = document.querySelectorAll('.custom-input, .custom-select');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.closest('.form-group').classList.add('input-focused');
+        });
+        input.addEventListener('blur', function() {
+            this.closest('.form-group').classList.remove('input-focused');
+        });
+    });
+});
+</script>
+
+<style>
+.edit-question-container {
+    max-width: 1000px;
+    margin: 0 auto 2rem;
+    direction: rtl;
+}
+
+.card {
+    border: none;
+    border-radius: 25px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #2196F3, #1565C0);
+    color: white;
+    padding: 2rem;
+    border-bottom: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+    transform: skewY(-4deg);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.header-icon {
+    font-size: 2.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.header-text h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 2.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.input-focused {
+    transform: translateY(-5px);
+}
+
+.form-label {
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.form-label i {
+    font-size: 1.2rem;
+}
+
+.custom-input, .custom-select {
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+    padding: 1rem 1.2rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+}
+
+.custom-input:focus, .custom-select:focus {
+    border-color: #2196F3;
+    box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.1);
+    background-color: #ffffff;
+}
+
+.options-section {
+    background: #f8f9fa;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.options-title {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.option-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.option-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.correct-answer-section {
+    background: #fff3e0;
+    padding: 1.5rem;
+    border-radius: 15px;
+    border-right: 4px solid #ffa000;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start;
+    margin-top: 2.5rem;
+}
+
+.btn-with-icon {
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #2196F3, #1565C0);
+    border: none;
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(33, 150, 243, 0.4);
+}
+
+.btn-secondary {
+    background: white;
+    border: 2px solid #e9ecef;
+    color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background: #f8f9fa;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+    .edit-question-container {
+        margin: 1rem;
+    }
+    
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn-with-icon {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .card-header {
+        padding: 1.5rem;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .options-section {
+        padding: 1.5rem;
+    }
+}
+</style>
 {% endblock %}

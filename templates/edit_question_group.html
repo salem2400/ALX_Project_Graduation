@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1>تعديل مجموعة الأسئلة</h1>
+        <h2>{{ group.name }}</h2>
+    </div>
+
+    <form method="POST" class="styled-form">
+        {{ form.csrf_token }}
+        
+        <div class="form-group">
+            {{ form.name.label }}
+            {{ form.name(class="form-control") }}
+            {% if form.name.errors %}
+            <div class="errors">
+                {% for error in form.name.errors %}
+                <span class="error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form.description.label }}
+            {{ form.description(class="form-control") }}
+            {% if form.description.errors %}
+            <div class="errors">
+                {% for error in form.description.errors %}
+                <span class="error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            {{ form.time_limit.label }}
+            {{ form.time_limit(class="form-control") }}
+            {% if form.time_limit.errors %}
+            <div class="errors">
+                {% for error in form.time_limit.errors %}
+                <span class="error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <small class="form-text">الوقت بالدقائق</small>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                حفظ التغييرات
+            </button>
+            <a href="{{ url_for('routes.custom_questions') }}" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                إلغاء
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+.form-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    direction: rtl;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.form-header h1 {
+    color: #1565C0;
+    margin-bottom: 0.5rem;
+}
+
+.form-header h2 {
+    color: #666;
+    font-weight: normal;
+}
+
+.styled-form {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: #333;
+}
+
+.form-control {
+    padding: 0.8rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #1565C0;
+    outline: none;
+}
+
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-text {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.errors {
+    color: #f44336;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #1565C0, #0D47A1);
+    color: white;
+    box-shadow: 0 4px 15px rgba(21, 101, 192, 0.3);
+}
+
+.btn-secondary {
+    background: white;
+    color: #666;
+    border: 2px solid #e0e0e0;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-primary:hover {
+    box-shadow: 0 6px 20px rgba(21, 101, 192, 0.4);
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %} 

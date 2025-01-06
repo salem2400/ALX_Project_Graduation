@@ -1,38 +1,83 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="auth-container">
-    <h2>Register</h2>
-    <form method="POST" action="{{ url_for('routes.register') }}">
-        <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" required>
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fas fa-user-plus"></i>
+            <h2>إنشاء حساب جديد</h2>
+            <p>أنشئ حسابك للوصول إلى جميع الميزات</p>
         </div>
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <div class="form-group">
-            <label for="confirm_password">Confirm Password</label>
-            <input type="password" id="confirm_password" name="confirm_password" required>
-        </div>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    {% if category == 'error' %}
-                        <div class="alert alert-error" style="color: red; margin-top: 5px;">
-                            {{ message }}
-                        </div>
-                    {% endif %}
+
+        <form method="POST" class="auth-form">
+            {{ form.hidden_tag() }}
+
+            <div class="form-floating">
+                {{ form.name(class="form-control", placeholder="الاسم") }}
+                <i class="fas fa-user"></i>
+                {% for error in form.name.errors %}
+                <span class="error-message">{{ error }}</span>
                 {% endfor %}
-            {% endif %}
-        {% endwith %}
-        <button type="submit" class="btn btn-primary">Register</button>
-    </form>
-    <p>Already have an account? <a href="{{ url_for('routes.login') }}">Login here</a></p>
+            </div>
+
+            <div class="form-floating">
+                {{ form.email(class="form-control", placeholder="البريد الإلكتروني") }}
+                <i class="fas fa-envelope"></i>
+                {% for error in form.email.errors %}
+                <span class="error-message">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-floating">
+                {{ form.password(class="form-control", placeholder="كلمة المرور") }}
+                <i class="fas fa-lock"></i>
+                <button type="button" class="toggle-password" onclick="togglePassword(this)">
+                    <i class="fas fa-eye"></i>
+                </button>
+                {% for error in form.password.errors %}
+                <span class="error-message">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-floating">
+                {{ form.confirm_password(class="form-control", placeholder="تأكيد كلمة المرور") }}
+                <i class="fas fa-lock"></i>
+                <button type="button" class="toggle-password" onclick="togglePassword(this)">
+                    <i class="fas fa-eye"></i>
+                </button>
+                {% for error in form.confirm_password.errors %}
+                <span class="error-message">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <span>إنشاء حساب</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>لديك حساب بالفعل؟ <a href="{{ url_for('routes.login') }}">تسجيل الدخول</a></p>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePassword(button) {
+    const input = button.parentElement.querySelector('input');
+    const icon = button.querySelector('i');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+</script>
 {% endblock %}

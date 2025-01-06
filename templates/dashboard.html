@@ -1,71 +1,99 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="dashboard-container">
+<div class="container">
     <div class="dashboard-header">
-        <h1>Your Dashboard</h1>
-        <p>Track your progress and performance</p>
+        <h1>لوحة التحكم</h1>
+        <p>تتبع تقدمك وأدائك في الاختبارات</p>
     </div>
 
     <div class="stats">
         <div class="stat-card">
-            <div class="stat-value">{{ quiz_results|length }}</div>
-            <div class="stat-label">Quizzes Taken</div>
+            <div class="stat-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="stat-value">{{ regular_quiz_results|length + custom_quiz_results|length }}</div>
+            <div class="stat-label">عدد الاختبارات المكتملة</div>
             <div class="stat-progress">
-                <div class="progress-bar" data-progress="{{ (quiz_results|length / 10) * 100 }}"></div>
+                <div class="progress-bar" data-progress="{{ ((regular_quiz_results|length + custom_quiz_results|length) / 10) * 100 }}"></div>
             </div>
         </div>
         
         <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
             <div class="stat-value">
-                {% if quiz_results %}
-                    {{ (quiz_results|sum(attribute='score') / quiz_results|length)|round(1) }}%
+                {% set total_score = (regular_quiz_results + custom_quiz_results)|sum(attribute='score') %}
+                {% set total_questions = (regular_quiz_results + custom_quiz_results)|sum(attribute='total_questions') %}
+                {% if total_questions > 0 %}
+                    {{ ((total_score / total_questions) * 100)|round(1) }}%
                 {% else %}
-                    N/A
+                    لا يوجد
                 {% endif %}
             </div>
-            <div class="stat-label">Average Score</div>
+            <div class="stat-label">متوسط الدرجات</div>
             <div class="stat-progress">
-                <div class="progress-bar" data-progress="{% if quiz_results %}{{ (quiz_results|sum(attribute='score') / (quiz_results|length * quiz_results[0].total_questions)) * 100 }}{% else %}0{% endif %}"></div>
+                <div class="progress-bar" data-progress="{{ (total_score / total_questions * 100) if total_questions > 0 else 0 }}"></div>
             </div>
         </div>
-        
+
         <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
             <div class="stat-value">
-                {% if quiz_results %}
-                    {{ (quiz_results|sum(attribute='time_taken') / quiz_results|length)|round(1) }}s
+                {% set all_results = regular_quiz_results + custom_quiz_results %}
+                {% if all_results %}
+                    {{ (all_results|sum(attribute='time_taken') / all_results|length)|round(1) }} ثانية
                 {% else %}
-                    N/A
+                    لا يوجد
                 {% endif %}
             </div>
-            <div class="stat-label">Avg Time</div>
+            <div class="stat-label">متوسط وقت الإجابة</div>
             <div class="stat-progress">
-                <div class="progress-bar" data-progress="{% if quiz_results %}{{ 100 - ((quiz_results|sum(attribute='time_taken') / quiz_results|length) / 120 * 100) }}{% else %}0{% endif %}"></div>
+                <div class="progress-bar" data-progress="{% if all_results %}{{ 100 - ((all_results|sum(attribute='time_taken') / all_results|length) / 300 * 100) }}{% else %}0{% endif %}"></div>
             </div>
         </div>
     </div>
 
     <div class="quiz-history">
-        <h2>Quiz History</h2>
-        {% if quiz_results %}
+        <h2>سجل الاختبارات</h2>
+        {% set all_results = (regular_quiz_results + custom_quiz_results)|sort(attribute='completed_at', reverse=true) %}
+        {% if all_results %}
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Score</th>
-                            <th>Time Taken</th>
-                            <th>Details</th>
+                            <th>التاريخ</th>
+                            <th>نوع الاختبار</th>
+                            <th>الدرجة</th>
+                            <th>الوقت المستغرق</th>
+                            <th>التفاصيل</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for result in quiz_results %}
+                        {% for result in all_results %}
                         <tr>
                             <td>{{ result.completed_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                            <td>{{ result.score }}/{{ result.total_questions }}</td>
-                            <td>{{ result.time_taken }}s</td>
                             <td>
-                                <a href="{{ url_for('routes.quiz_details', quiz_id=result.id) }}" class="btn btn-small">View</a>
+                                {% if result.is_custom_quiz %}
+                                    {% if result.group %}
+                                        {{ result.group.name }}
+                                    {% else %}
+                                        اختبار مخصص
+                                    {% endif %}
+                                {% else %}
+                                    اختبار عادي
+                                {% endif %}
+                            </td>
+                            <td>{{ result.score }}/{{ result.total_questions }}</td>
+                            <td>{{ result.time_taken // 60 }} دقيقة و {{ result.time_taken % 60 }} ثانية</td>
+                            <td>
+                                <a href="{{ url_for('routes.quiz_result', quiz_id=result.id) }}" class="btn btn-small">
+                                    <i class="fas fa-eye"></i>
+                                    عرض
+                                </a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -74,24 +102,406 @@
             </div>
         {% else %}
             <div class="empty-state">
-                <div class="empty-icon">📊</div>
-                <h3>No quiz results yet</h3>
-                <p>Take a quiz to see your results here!</p>
-                <a href="{{ url_for('routes.quiz') }}" class="btn" onclick="startQuiz()">Start Quiz</a>
+                <div class="empty-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3>لا توجد نتائج اختبارات حتى الآن</h3>
+                <p>قم بإجراء اختبار لرؤية نتائجك هنا!</p>
+                <a href="{{ url_for('routes.quiz') }}" class="btn btn-primary">
+                    <i class="fas fa-play"></i>
+                    بدء اختبار جديد
+                </a>
             </div>
         {% endif %}
     </div>
 </div>
-{% endblock %}
+
+<style>
+/* الاحتفاظ بنفس التنسيق السابق */
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.dashboard-header h1 {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-header p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: var(--background-color);
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 
+        0 5px 15px rgba(0, 0, 0, 0.2),
+        0 10px 30px rgba(0, 0, 0, 0.1),
+        inset 0 -3px 10px rgba(0, 0, 0, 0.1),
+        inset 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px) translateZ(20px);
+    box-shadow: 
+        0 15px 30px rgba(0, 0, 0, 0.25),
+        0 20px 40px rgba(0, 0, 0, 0.15),
+        inset 0 -3px 15px rgba(0, 0, 0, 0.2),
+        inset 0 3px 15px rgba(255, 255, 255, 0.3);
+}
+
+/* بطاقة متوسط وقت الإجابة */
+.stat-card:nth-child(1) {
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    color: white;
+    box-shadow: 
+        0 5px 15px rgba(76, 175, 80, 0.3),
+        0 10px 30px rgba(46, 125, 50, 0.2),
+        inset 0 -3px 10px rgba(0, 0, 0, 0.2),
+        inset 0 3px 10px rgba(255, 255, 255, 0.3);
+}
+
+.stat-card:nth-child(1) .stat-icon {
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:nth-child(1) .stat-value {
+    color: #FFFFFF;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:nth-child(1) .stat-label {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card:nth-child(1) .stat-progress {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:nth-child(1) .progress-bar {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:nth-child(1):hover {
+    box-shadow: 
+        0 15px 30px rgba(76, 175, 80, 0.4),
+        0 20px 40px rgba(46, 125, 50, 0.3),
+        inset 0 -3px 15px rgba(0, 0, 0, 0.3),
+        inset 0 3px 15px rgba(255, 255, 255, 0.4);
+}
+
+.stat-card:nth-child(1):hover .stat-icon,
+.stat-card:nth-child(1):hover .stat-value,
+.stat-card:nth-child(1):hover .stat-label {
+    color: #FFFFFF;
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* بطاقة متوسط الدرجات */
+.stat-card:nth-child(2) {
+    background: linear-gradient(135deg, #1565C0, #0D47A1);
+    color: white;
+    box-shadow: 
+        0 5px 15px rgba(33, 150, 243, 0.3),
+        0 10px 30px rgba(21, 101, 192, 0.2),
+        inset 0 -3px 10px rgba(0, 0, 0, 0.2),
+        inset 0 3px 10px rgba(255, 255, 255, 0.3);
+}
+
+.stat-card:nth-child(2) .stat-icon {
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:nth-child(2) .stat-value {
+    color: #FFFFFF;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:nth-child(2) .stat-label {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card:nth-child(2) .stat-progress {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:nth-child(2) .progress-bar {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:nth-child(2):hover {
+    box-shadow: 
+        0 15px 30px rgba(33, 150, 243, 0.4),
+        0 20px 40px rgba(21, 101, 192, 0.3),
+        inset 0 -3px 15px rgba(0, 0, 0, 0.3),
+        inset 0 3px 15px rgba(255, 255, 255, 0.4);
+}
+
+.stat-card:nth-child(2):hover .stat-icon,
+.stat-card:nth-child(2):hover .stat-value,
+.stat-card:nth-child(2):hover .stat-label {
+    color: #FFFFFF;
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* بطاقة عدد الاختبارات المكتملة */
+.stat-card:nth-child(3) {
+    background: linear-gradient(135deg, #FF9800, #E65100);
+    color: white;
+    box-shadow: 
+        0 5px 15px rgba(255, 152, 0, 0.3),
+        0 10px 30px rgba(245, 124, 0, 0.2),
+        inset 0 -3px 10px rgba(0, 0, 0, 0.2),
+        inset 0 3px 10px rgba(255, 255, 255, 0.3);
+}
+
+.stat-card:nth-child(3) .stat-icon {
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:nth-child(3) .stat-value {
+    color: #FFFFFF;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:nth-child(3) .stat-label {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card:nth-child(3) .stat-progress {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:nth-child(3) .progress-bar {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:nth-child(3):hover {
+    box-shadow: 
+        0 15px 30px rgba(255, 152, 0, 0.4),
+        0 20px 40px rgba(245, 124, 0, 0.3),
+        inset 0 -3px 15px rgba(0, 0, 0, 0.3),
+        inset 0 3px 15px rgba(255, 255, 255, 0.4);
+}
+
+.stat-card:nth-child(3):hover .stat-icon,
+.stat-card:nth-child(3):hover .stat-value,
+.stat-card:nth-child(3):hover .stat-label {
+    color: #FFFFFF;
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-label {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.stat-progress {
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stat-progress .progress-bar {
+    height: 100%;
+    transition: width 1.5s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* إضافة تأثير الخلفية */
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top right, rgba(255,255,255,0.2) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stat-card:hover::before {
+    opacity: 1;
+}
+
+/* تحسين التأثيرات عند التحويم */
+.stat-card:hover .stat-icon {
+    transform: scale(1.1) translateZ(10px);
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card:hover .stat-value {
+    transform: translateY(-2px) translateZ(10px);
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* تحسينات للشاشات الصغيرة */
+@media (max-width: 768px) {
+    .stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+}
+
+.quiz-history {
+    background: var(--background-color);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+}
+
+.quiz-history h2 {
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: right;
+    border-bottom: 1px solid var(--border-color);
+}
+
+th {
+    background: var(--background-secondary);
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.btn-small {
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    background: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.3s ease;
+}
+
+.btn-small:hover {
+    background: var(--primary-color-dark);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.btn-primary {
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    background: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: var(--primary-color-dark);
+    transform: translateY(-2px);
+}
+</style>
 
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // تحريك شريط التقدم
         const progressBars = document.querySelectorAll('.progress-bar');
         progressBars.forEach(bar => {
             const progress = bar.getAttribute('data-progress');
-            bar.style.width = progress + '%';
+            setTimeout(() => {
+                bar.style.width = progress + '%';
+            }, 200);
         });
     });
 </script>
+{% endblock %}
 {% endblock %}
