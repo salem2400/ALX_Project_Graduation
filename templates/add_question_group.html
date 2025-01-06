@@ -3,7 +3,7 @@
 {% block content %}
 <div class="add-group-container">
     <div class="page-header">
-        <h1>إنشاء مجموعة أسئلة جديدة</h1>
+        <h1>Create New Question Group</h1>
     </div>
 
     <div class="form-card">
@@ -11,23 +11,23 @@
             {{ form.csrf_token }}
             
             <div class="form-group">
-                <label for="name">اسم المجموعة</label>
-                {{ form.name(class="form-control", placeholder="أدخل اسم المجموعة") }}
+                <label for="name">Group Name</label>
+                {{ form.name(class="form-control", placeholder="Enter group name") }}
                 {% if form.name.errors %}
                     <div class="error-message">{{ form.name.errors[0] }}</div>
                 {% endif %}
             </div>
 
             <div class="form-group">
-                <label for="description">وصف المجموعة</label>
-                {{ form.description(class="form-control", placeholder="أدخل وصفاً للمجموعة") }}
+                <label for="description">Group Description</label>
+                {{ form.description(class="form-control", placeholder="Enter group description") }}
                 {% if form.description.errors %}
                     <div class="error-message">{{ form.description.errors[0] }}</div>
                 {% endif %}
             </div>
 
             <div class="form-group">
-                <label for="time_limit">الوقت المحدد للاختبار (بالدقائق)</label>
+                <label for="time_limit">Quiz Time Limit (in minutes)</label>
                 {{ form.time_limit(class="form-control", type="number", min="1", max="180") }}
                 {% if form.time_limit.errors %}
                     <div class="error-message">{{ form.time_limit.errors[0] }}</div>
@@ -37,11 +37,11 @@
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i>
-                    إنشاء المجموعة
+                    Create Group
                 </button>
                 <a href="{{ url_for('routes.custom_questions') }}" class="btn btn-secondary">
                     <i class="fas fa-times"></i>
-                    إلغاء
+                    Cancel
                 </a>
             </div>
         </form>
@@ -53,7 +53,7 @@
     max-width: 800px;
     margin: 0 auto;
     padding: 2rem;
-    direction: rtl;
+    direction: ltr;
 }
 
 .page-header {

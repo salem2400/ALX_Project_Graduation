@@ -3,7 +3,7 @@
 {% block content %}
 <div class="form-container">
     <div class="form-header">
-        <h1>تعديل مجموعة الأسئلة</h1>
+        <h1>Edit Question Group</h1>
         <h2>{{ group.name }}</h2>
     </div>
 
@@ -44,17 +44,17 @@
                 {% endfor %}
             </div>
             {% endif %}
-            <small class="form-text">الوقت بالدقائق</small>
+            <small class="form-text">Time in minutes</small>
         </div>
 
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-save"></i>
-                حفظ التغييرات
+                Save Changes
             </button>
             <a href="{{ url_for('routes.custom_questions') }}" class="btn btn-secondary">
                 <i class="fas fa-times"></i>
-                إلغاء
+                Cancel
             </a>
         </div>
     </form>
@@ -68,7 +68,7 @@
     background: white;
     border-radius: 15px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    direction: rtl;
+    direction: ltr;
 }
 
 .form-header {

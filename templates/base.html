@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام الاختبارات</title>
+    <title>Quiz System</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/solid.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="{{ url_for('static', filename='js/notifications.js') }}" defer></script>
     <style>
-        /* أنماط الشريط العلوي */
+        /* Navigation Bar Styles */
         nav {
             background: linear-gradient(135deg, var(--primary-color), #2962ff);
             padding: 1rem 0;
@@ -61,7 +61,7 @@
             transform: scale(1.2);
         }
 
-        /* تنسيق خاص لزر تسجيل الخروج */
+        /* Special styling for logout button */
         .nav-links a[href*="logout"] {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -72,13 +72,13 @@
             border-color: rgba(255, 255, 255, 0.3);
         }
 
-        /* تأثير نشط للرابط الحالي */
+        /* Active link effect */
         .nav-links a.active {
             background: rgba(255, 255, 255, 0.2);
             font-weight: bold;
         }
 
-        /* تحسين شكل اللوجو */
+        /* Logo styling */
         .logo a {
             font-size: 1.5rem;
             font-weight: bold;
@@ -99,7 +99,7 @@
             color: white;
         }
 
-        /* تحسينات للشاشات الصغيرة */
+        /* Mobile screen improvements */
         @media (max-width: 768px) {
             .nav-links {
                 display: flex;
@@ -113,7 +113,7 @@
             }
         }
 
-        /* تنسيق خاص لزر تسجيل الدخول */
+        /* Special styling for login button */
         .auth-buttons {
             display: flex;
             gap: 1rem;
@@ -148,7 +148,7 @@
             transform: scale(1.2);
         }
 
-        /* تنسيق خاص لزر إنشاء حساب */
+        /* Special styling for register button */
         .auth-btn-register {
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -213,11 +213,6 @@
         </div>
     </nav>
 
-    <!-- Theme Toggle Button -->
-    <button class="theme-toggle-fixed" onclick="toggleTheme()">
-        <i class="fas fa-moon"></i>
-    </button>
-
     <!-- Notifications Container -->
     <div id="notifications-container"></div>
 
@@ -246,35 +241,6 @@
         });
     </script>
 
-    {% block scripts %}
-    <script>
-        // تحقق من الوضع المحفوظ
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeIcon(savedTheme);
-        });
-
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcon(newTheme);
-        }
-
-        function updateThemeIcon(theme) {
-            const icon = document.querySelector('.theme-toggle-fixed i');
-            if (theme === 'dark') {
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-            } else {
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
-            }
-        }
-    </script>
-    {% endblock %}
+    {% block scripts %}{% endblock %}
 </body>
 </html>

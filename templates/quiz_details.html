@@ -3,7 +3,7 @@
 {% block content %}
 <div class="quiz-details-container">
     <div class="details-header">
-        <h1>تفاصيل الاختبار</h1>
+        <h1>Quiz Details</h1>
         {% if quiz_result.is_custom_quiz and group %}
         <h2>{{ group.name }}</h2>
         {% endif %}
@@ -11,7 +11,7 @@
 
     <div class="score-summary">
         <div class="score-item">
-            <h3>النتيجة النهائية</h3>
+            <h3>Final Score</h3>
             <div class="score">{{ quiz_result.score }}/{{ quiz_result.total_questions }}</div>
             <div class="percentage">
                 {{ (quiz_result.score / quiz_result.total_questions * 100) | round }}%
@@ -19,15 +19,15 @@
         </div>
         
         <div class="score-item">
-            <h3>الوقت المستغرق</h3>
+            <h3>Time Taken</h3>
             <div class="time">
                 <i class="fas fa-clock"></i>
-                <span>{{ quiz_result.time_taken // 60 }} دقيقة و {{ quiz_result.time_taken % 60 }} ثانية</span>
+                <span>{{ quiz_result.time_taken // 60 }} minutes and {{ quiz_result.time_taken % 60 }} seconds</span>
             </div>
         </div>
 
         <div class="score-item">
-            <h3>تاريخ الاختبار</h3>
+            <h3>Quiz Date</h3>
             <div class="date">
                 <i class="fas fa-calendar"></i>
                 <span>{{ quiz_result.completed_at.strftime('%Y-%m-%d %H:%M') }}</span>
@@ -36,7 +36,7 @@
     </div>
 
     <div class="questions-review">
-        <h3>مراجعة الأسئلة</h3>
+        <h3>Questions Review</h3>
         {% for question in questions %}
         <div class="question-card {% if question.is_correct %}correct{% else %}incorrect{% endif %}">
             <div class="question-text">{{ question.text }}</div>
@@ -58,11 +58,11 @@
 
             <div class="answers">
                 <div class="user-answer {% if not question.is_correct %}incorrect{% endif %}">
-                    <strong>إجابتك:</strong> 
-                    <span>{{ question.user_answer if question.user_answer else 'لم يتم الإجابة' }}</span>
+                    <strong>Your Answer:</strong> 
+                    <span>{{ question.user_answer if question.user_answer else 'No Answer' }}</span>
                 </div>
                 <div class="correct-answer">
-                    <strong>الإجابة الصحيحة:</strong>
+                    <strong>Correct Answer:</strong>
                     <span>{{ question.correct_answer }}</span>
                 </div>
             </div>
@@ -73,12 +73,12 @@
     <div class="actions">
         <a href="{{ url_for('routes.dashboard') }}" class="btn btn-primary">
             <i class="fas fa-home"></i>
-            العودة إلى لوحة التحكم
+            Return to Dashboard
         </a>
         {% if quiz_result.is_custom_quiz and group %}
         <a href="{{ url_for('routes.start_group_quiz', group_id=group.id) }}" class="btn btn-secondary">
             <i class="fas fa-redo"></i>
-            إعادة الاختبار
+            Retake Quiz
         </a>
         {% endif %}
     </div>

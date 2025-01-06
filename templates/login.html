@@ -5,15 +5,15 @@
     <div class="auth-card">
         <div class="auth-header">
             <i class="fas fa-sign-in-alt"></i>
-            <h2>تسجيل الدخول</h2>
-            <p>أدخل بياناتك للوصول إلى حسابك</p>
+            <h2>Login</h2>
+            <p>Enter your credentials to access your account</p>
         </div>
 
         <form method="POST" class="auth-form">
             {{ form.hidden_tag() }}
 
             <div class="form-floating">
-                {{ form.email(class="form-control", placeholder="البريد الإلكتروني") }}
+                {{ form.email(class="form-control", placeholder="Email") }}
                 <i class="fas fa-envelope"></i>
                 {% for error in form.email.errors %}
                 <span class="error-message">{{ error }}</span>
@@ -21,7 +21,7 @@
             </div>
 
             <div class="form-floating">
-                {{ form.password(class="form-control", placeholder="كلمة المرور") }}
+                {{ form.password(class="form-control", placeholder="Password") }}
                 <i class="fas fa-lock"></i>
                 <button type="button" class="toggle-password" onclick="togglePassword(this)">
                     <i class="fas fa-eye"></i>
@@ -32,13 +32,13 @@
             </div>
 
             <button type="submit" class="submit-btn">
-                <span>تسجيل الدخول</span>
+                <span>Login</span>
                 <i class="fas fa-arrow-right"></i>
             </button>
         </form>
 
         <div class="auth-footer">
-            <p>ليس لديك حساب؟ <a href="{{ url_for('routes.register') }}">إنشاء حساب جديد</a></p>
+            <p>Don't have an account? <a href="{{ url_for('routes.register') }}">Create New Account</a></p>
         </div>
     </div>
 </div>

@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
+<div class="dashboard-container">
     <div class="dashboard-header">
-        <h1>لوحة التحكم</h1>
-        <p>تتبع تقدمك وأدائك في الاختبارات</p>
+        <h1>Dashboard</h1>
+        <p>Track your progress and performance in quizzes</p>
     </div>
 
     <div class="stats">
@@ -13,7 +13,7 @@
                 <i class="fas fa-file-alt"></i>
             </div>
             <div class="stat-value">{{ regular_quiz_results|length + custom_quiz_results|length }}</div>
-            <div class="stat-label">عدد الاختبارات المكتملة</div>
+            <div class="stat-label">Completed Quizzes</div>
             <div class="stat-progress">
                 <div class="progress-bar" data-progress="{{ ((regular_quiz_results|length + custom_quiz_results|length) / 10) * 100 }}"></div>
             </div>
@@ -29,10 +29,10 @@
                 {% if total_questions > 0 %}
                     {{ ((total_score / total_questions) * 100)|round(1) }}%
                 {% else %}
-                    لا يوجد
+                    None
                 {% endif %}
             </div>
-            <div class="stat-label">متوسط الدرجات</div>
+            <div class="stat-label">Average Score</div>
             <div class="stat-progress">
                 <div class="progress-bar" data-progress="{{ (total_score / total_questions * 100) if total_questions > 0 else 0 }}"></div>
             </div>
@@ -45,12 +45,12 @@
             <div class="stat-value">
                 {% set all_results = regular_quiz_results + custom_quiz_results %}
                 {% if all_results %}
-                    {{ (all_results|sum(attribute='time_taken') / all_results|length)|round(1) }} ثانية
+                    {{ (all_results|sum(attribute='time_taken') / all_results|length)|round(1) }} seconds
                 {% else %}
-                    لا يوجد
+                    None
                 {% endif %}
             </div>
-            <div class="stat-label">متوسط وقت الإجابة</div>
+            <div class="stat-label">Average Response Time</div>
             <div class="stat-progress">
                 <div class="progress-bar" data-progress="{% if all_results %}{{ 100 - ((all_results|sum(attribute='time_taken') / all_results|length) / 300 * 100) }}{% else %}0{% endif %}"></div>
             </div>
@@ -58,18 +58,18 @@
     </div>
 
     <div class="quiz-history">
-        <h2>سجل الاختبارات</h2>
+        <h2>Quiz History</h2>
         {% set all_results = (regular_quiz_results + custom_quiz_results)|sort(attribute='completed_at', reverse=true) %}
         {% if all_results %}
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th>التاريخ</th>
-                            <th>نوع الاختبار</th>
-                            <th>الدرجة</th>
-                            <th>الوقت المستغرق</th>
-                            <th>التفاصيل</th>
+                            <th>Date</th>
+                            <th>Quiz Type</th>
+                            <th>Score</th>
+                            <th>Time Taken</th>
+                            <th>Details</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -81,18 +81,18 @@
                                     {% if result.group %}
                                         {{ result.group.name }}
                                     {% else %}
-                                        اختبار مخصص
+                                        Custom Quiz
                                     {% endif %}
                                 {% else %}
-                                    اختبار عادي
+                                    Regular Quiz
                                 {% endif %}
                             </td>
                             <td>{{ result.score }}/{{ result.total_questions }}</td>
-                            <td>{{ result.time_taken // 60 }} دقيقة و {{ result.time_taken % 60 }} ثانية</td>
+                            <td>{{ result.time_taken // 60 }} minutes and {{ result.time_taken % 60 }} seconds</td>
                             <td>
                                 <a href="{{ url_for('routes.quiz_result', quiz_id=result.id) }}" class="btn btn-small">
                                     <i class="fas fa-eye"></i>
-                                    عرض
+                                    View
                                 </a>
                             </td>
                         </tr>
@@ -105,11 +105,11 @@
                 <div class="empty-icon">
                     <i class="fas fa-chart-bar"></i>
                 </div>
-                <h3>لا توجد نتائج اختبارات حتى الآن</h3>
-                <p>قم بإجراء اختبار لرؤية نتائجك هنا!</p>
+                <h3>No Quiz Results Yet</h3>
+                <p>Take a quiz to see your results here!</p>
                 <a href="{{ url_for('routes.quiz') }}" class="btn btn-primary">
                     <i class="fas fa-play"></i>
-                    بدء اختبار جديد
+                    Start New Quiz
                 </a>
             </div>
         {% endif %}
@@ -117,251 +117,31 @@
 </div>
 
 <style>
-/* الاحتفاظ بنفس التنسيق السابق */
-.dashboard-header {
-    text-align: center;
-    margin-bottom: 3rem;
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
 }
 
-.dashboard-header h1 {
-    font-size: 2.5rem;
-    color: var(--primary-color);
-    margin-bottom: 0.5rem;
-}
-
-.dashboard-header p {
-    color: var(--text-muted);
-    font-size: 1.1rem;
-}
-
-.stats {
+.stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 2rem;
     margin-bottom: 3rem;
 }
 
 .stat-card {
-    background: var(--background-color);
-    padding: 2rem;
-    border-radius: 15px;
-    text-align: center;
-    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    box-shadow: 
-        0 5px 15px rgba(0, 0, 0, 0.2),
-        0 10px 30px rgba(0, 0, 0, 0.1),
-        inset 0 -3px 10px rgba(0, 0, 0, 0.1),
-        inset 0 3px 10px rgba(255, 255, 255, 0.2);
-}
-
-.stat-card:hover {
-    transform: translateY(-5px) translateZ(20px);
-    box-shadow: 
-        0 15px 30px rgba(0, 0, 0, 0.25),
-        0 20px 40px rgba(0, 0, 0, 0.15),
-        inset 0 -3px 15px rgba(0, 0, 0, 0.2),
-        inset 0 3px 15px rgba(255, 255, 255, 0.3);
-}
-
-/* بطاقة متوسط وقت الإجابة */
-.stat-card:nth-child(1) {
-    background: linear-gradient(135deg, #4CAF50, #2E7D32);
-    color: white;
-    box-shadow: 
-        0 5px 15px rgba(76, 175, 80, 0.3),
-        0 10px 30px rgba(46, 125, 50, 0.2),
-        inset 0 -3px 10px rgba(0, 0, 0, 0.2),
-        inset 0 3px 10px rgba(255, 255, 255, 0.3);
-}
-
-.stat-card:nth-child(1) .stat-icon {
-    color: rgba(255, 255, 255, 0.95);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.stat-card:nth-child(1) .stat-value {
-    color: #FFFFFF;
-    font-weight: bold;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.stat-card:nth-child(1) .stat-label {
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 500;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.stat-card:nth-child(1) .stat-progress {
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.stat-card:nth-child(1) .progress-bar {
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.stat-card:nth-child(1):hover {
-    box-shadow: 
-        0 15px 30px rgba(76, 175, 80, 0.4),
-        0 20px 40px rgba(46, 125, 50, 0.3),
-        inset 0 -3px 15px rgba(0, 0, 0, 0.3),
-        inset 0 3px 15px rgba(255, 255, 255, 0.4);
-}
-
-.stat-card:nth-child(1):hover .stat-icon,
-.stat-card:nth-child(1):hover .stat-value,
-.stat-card:nth-child(1):hover .stat-label {
-    color: #FFFFFF;
-    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
-}
-
-/* بطاقة متوسط الدرجات */
-.stat-card:nth-child(2) {
     background: linear-gradient(135deg, #1565C0, #0D47A1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(21, 101, 192, 0.2);
+    text-align: center;
     color: white;
-    box-shadow: 
-        0 5px 15px rgba(33, 150, 243, 0.3),
-        0 10px 30px rgba(21, 101, 192, 0.2),
-        inset 0 -3px 10px rgba(0, 0, 0, 0.2),
-        inset 0 3px 10px rgba(255, 255, 255, 0.3);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.stat-card:nth-child(2) .stat-icon {
-    color: rgba(255, 255, 255, 0.95);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.stat-card:nth-child(2) .stat-value {
-    color: #FFFFFF;
-    font-weight: bold;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.stat-card:nth-child(2) .stat-label {
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 500;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.stat-card:nth-child(2) .stat-progress {
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.stat-card:nth-child(2) .progress-bar {
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.stat-card:nth-child(2):hover {
-    box-shadow: 
-        0 15px 30px rgba(33, 150, 243, 0.4),
-        0 20px 40px rgba(21, 101, 192, 0.3),
-        inset 0 -3px 15px rgba(0, 0, 0, 0.3),
-        inset 0 3px 15px rgba(255, 255, 255, 0.4);
-}
-
-.stat-card:nth-child(2):hover .stat-icon,
-.stat-card:nth-child(2):hover .stat-value,
-.stat-card:nth-child(2):hover .stat-label {
-    color: #FFFFFF;
-    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
-}
-
-/* بطاقة عدد الاختبارات المكتملة */
-.stat-card:nth-child(3) {
-    background: linear-gradient(135deg, #FF9800, #E65100);
-    color: white;
-    box-shadow: 
-        0 5px 15px rgba(255, 152, 0, 0.3),
-        0 10px 30px rgba(245, 124, 0, 0.2),
-        inset 0 -3px 10px rgba(0, 0, 0, 0.2),
-        inset 0 3px 10px rgba(255, 255, 255, 0.3);
-}
-
-.stat-card:nth-child(3) .stat-icon {
-    color: rgba(255, 255, 255, 0.95);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.stat-card:nth-child(3) .stat-value {
-    color: #FFFFFF;
-    font-weight: bold;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.stat-card:nth-child(3) .stat-label {
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 500;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.stat-card:nth-child(3) .stat-progress {
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.stat-card:nth-child(3) .progress-bar {
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.stat-card:nth-child(3):hover {
-    box-shadow: 
-        0 15px 30px rgba(255, 152, 0, 0.4),
-        0 20px 40px rgba(245, 124, 0, 0.3),
-        inset 0 -3px 15px rgba(0, 0, 0, 0.3),
-        inset 0 3px 15px rgba(255, 255, 255, 0.4);
-}
-
-.stat-card:nth-child(3):hover .stat-icon,
-.stat-card:nth-child(3):hover .stat-value,
-.stat-card:nth-child(3):hover .stat-label {
-    color: #FFFFFF;
-    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
-}
-
-.stat-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    position: relative;
-    z-index: 1;
-}
-
-.stat-value {
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    position: relative;
-    z-index: 1;
-}
-
-.stat-label {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-    position: relative;
-    z-index: 1;
-}
-
-.stat-progress {
-    height: 8px;
-    border-radius: 4px;
-    overflow: hidden;
-    position: relative;
-    z-index: 1;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.stat-progress .progress-bar {
-    height: 100%;
-    transition: width 1.5s ease-in-out;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* إضافة تأثير الخلفية */
 .stat-card::before {
     content: '';
     position: absolute;
@@ -369,139 +149,221 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at top right, rgba(255,255,255,0.2) 0%, transparent 60%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 8px 30px rgba(21, 101, 192, 0.3);
 }
 
 .stat-card:hover::before {
-    opacity: 1;
+    transform: translateX(100%);
 }
 
-/* تحسين التأثيرات عند التحويم */
+.stat-icon {
+    font-size: 2.2rem;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 1rem;
+    transform: scale(1);
+    transition: transform 0.3s ease;
+}
+
 .stat-card:hover .stat-icon {
-    transform: scale(1.1) translateZ(10px);
-    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    transform: scale(1.1);
 }
 
-.stat-card:hover .stat-value {
-    transform: translateY(-2px) translateZ(10px);
-    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-}
-
-/* تحسينات للشاشات الصغيرة */
-@media (max-width: 768px) {
-    .stats {
-        grid-template-columns: 1fr;
-    }
-    
-    .stat-card {
-        margin-bottom: 1rem;
-    }
-}
-
-.quiz-history {
-    background: var(--background-color);
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: var(--shadow);
-}
-
-.quiz-history h2 {
-    color: var(--primary-color);
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-.table-container {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 1rem;
-    text-align: right;
-    border-bottom: 1px solid var(--border-color);
-}
-
-th {
-    background: var(--background-secondary);
-    color: var(--primary-color);
+.stat-value {
+    font-size: 2.5rem;
     font-weight: bold;
-}
-
-.btn-small {
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    background: var(--primary-color);
     color: white;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: background 0.3s ease;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.btn-small:hover {
-    background: var(--primary-color-dark);
+.stat-label {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.stat-progress {
+    margin-top: 1rem;
+}
+
+.progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: var(--progress, 0%);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* ألوان مختلفة للبطاقات */
+.stat-card:nth-child(1) {
+    background: linear-gradient(135deg, #FF6B6B, #EE5253);
+}
+
+.stat-card:nth-child(2) {
+    background: linear-gradient(135deg, #4834D4, #686DE0);
+}
+
+.stat-card:nth-child(3) {
+    background: linear-gradient(135deg, #20BF6B, #26DE81);
+}
+
+/* تأثير النبض للأيقونات */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.stat-card:hover .stat-icon i {
+    animation: pulse 1s infinite;
+}
+
+/* تأثير التوهج لشريط التقدم */
+@keyframes glow {
+    0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+}
+
+.stat-card:hover .progress-bar::after {
+    animation: glow 2s infinite;
+}
+
+.recent-quizzes {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    color: #1565C0;
+    margin: 0;
+}
+
+.quiz-list {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.quiz-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 1rem;
+}
+
+.quiz-info h3 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+}
+
+.quiz-meta {
+    display: flex;
+    gap: 2rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.quiz-score {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4CAF50;
 }
 
 .empty-state {
     text-align: center;
-    padding: 3rem;
+    padding: 4rem 2rem;
 }
 
 .empty-icon {
     font-size: 4rem;
-    color: var(--text-muted);
+    margin-bottom: 1rem;
+    color: #1565C0;
+}
+
+.empty-state h2 {
+    color: #333;
     margin-bottom: 1rem;
 }
 
-.empty-state h3 {
-    color: var(--text-color);
-    margin-bottom: 0.5rem;
-}
-
 .empty-state p {
-    color: var(--text-muted);
-    margin-bottom: 1.5rem;
+    color: #666;
+    margin-bottom: 2rem;
 }
 
-.btn-primary {
-    padding: 0.8rem 1.5rem;
-    border-radius: 5px;
-    background: var(--primary-color);
-    color: white;
-    text-decoration: none;
+.btn {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    font-weight: bold;
+    padding: 0.8rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
     transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #1565C0, #0D47A1);
+    color: white;
+    box-shadow: 0 4px 15px rgba(21, 101, 192, 0.3);
 }
 
 .btn-primary:hover {
-    background: var(--primary-color-dark);
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(21, 101, 192, 0.4);
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quiz-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .quiz-meta {
+        justify-content: center;
+    }
 }
 </style>
-
-{% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // تحريك شريط التقدم
-        const progressBars = document.querySelectorAll('.progress-bar');
-        progressBars.forEach(bar => {
-            const progress = bar.getAttribute('data-progress');
-            setTimeout(() => {
-                bar.style.width = progress + '%';
-            }, 200);
-        });
-    });
-</script>
-{% endblock %}
 {% endblock %}

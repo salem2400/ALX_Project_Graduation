@@ -3,9 +3,9 @@
 {% block content %}
 <div class="add-question-container">
     <div class="page-header">
-        <h1>إضافة سؤال جديد</h1>
+        <h1>Add New Question</h1>
         {% if group_id %}
-        <p class="group-info">إضافة إلى المجموعة: {{ group.name }}</p>
+        <p class="group-info">Adding to Group: {{ group.name }}</p>
         {% endif %}
     </div>
 
@@ -14,8 +14,8 @@
             {{ form.hidden_tag() }}
             
             <div class="form-group">
-                <label for="text">نص السؤال</label>
-                {{ form.text(class="form-control", placeholder="اكتب نص السؤال هنا...") }}
+                <label for="text">Question Text</label>
+                {{ form.text(class="form-control", placeholder="Write your question here...") }}
                 {% if form.text.errors %}
                     {% for error in form.text.errors %}
                         <span class="error-message">{{ error }}</span>
@@ -24,11 +24,11 @@
             </div>
 
             <div class="options-section">
-                <h3>خيارات الإجابة</h3>
+                <h3>Answer Options</h3>
                 <div class="options-grid">
                     <div class="option-group">
-                        <label for="option1">الخيار الأول</label>
-                        {{ form.option1(class="form-control", placeholder="اكتب الخيار الأول...") }}
+                        <label for="option1">First Option</label>
+                        {{ form.option1(class="form-control", placeholder="Write the first option...") }}
                         {% if form.option1.errors %}
                             {% for error in form.option1.errors %}
                                 <span class="error-message">{{ error }}</span>
@@ -37,8 +37,8 @@
                     </div>
 
                     <div class="option-group">
-                        <label for="option2">الخيار الثاني</label>
-                        {{ form.option2(class="form-control", placeholder="اكتب الخيار الثاني...") }}
+                        <label for="option2">Second Option</label>
+                        {{ form.option2(class="form-control", placeholder="Write the second option...") }}
                         {% if form.option2.errors %}
                             {% for error in form.option2.errors %}
                                 <span class="error-message">{{ error }}</span>
@@ -47,8 +47,8 @@
                     </div>
 
                     <div class="option-group">
-                        <label for="option3">الخيار الثالث</label>
-                        {{ form.option3(class="form-control", placeholder="اكتب الخيار الثالث...") }}
+                        <label for="option3">Third Option</label>
+                        {{ form.option3(class="form-control", placeholder="Write the third option...") }}
                         {% if form.option3.errors %}
                             {% for error in form.option3.errors %}
                                 <span class="error-message">{{ error }}</span>
@@ -57,8 +57,8 @@
                     </div>
 
                     <div class="option-group">
-                        <label for="option4">الخيار الرابع</label>
-                        {{ form.option4(class="form-control", placeholder="اكتب الخيار الرابع...") }}
+                        <label for="option4">Fourth Option</label>
+                        {{ form.option4(class="form-control", placeholder="Write the fourth option...") }}
                         {% if form.option4.errors %}
                             {% for error in form.option4.errors %}
                                 <span class="error-message">{{ error }}</span>
@@ -89,7 +89,7 @@
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i>
-                    حفظ السؤال
+                    Save Question
                 </button>
                 {% if group_id %}
                 <a href="{{ url_for('routes.view_group_questions', group_id=group_id) }}" class="btn btn-secondary">
@@ -97,7 +97,7 @@
                 <a href="{{ url_for('routes.custom_questions') }}" class="btn btn-secondary">
                 {% endif %}
                     <i class="fas fa-times"></i>
-                    إلغاء
+                    Cancel
                 </a>
             </div>
         </form>

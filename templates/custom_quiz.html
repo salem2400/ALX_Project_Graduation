@@ -4,7 +4,7 @@
 <div class="quiz-container">
     <div class="quiz-header">
         <div class="timer" id="timer">00:00</div>
-        <div class="question-counter" id="question-counter">السؤال 1 من {{ questions|length }}</div>
+        <div class="question-counter" id="question-counter">Question 1 of {{ questions|length }}</div>
     </div>
 
     <div class="question-container">
@@ -13,9 +13,9 @@
     </div>
 
     <div class="navigation-buttons">
-        <button id="prev-btn" class="btn btn-secondary">السابق</button>
-        <button id="next-btn" class="btn btn-primary">التالي</button>
-        <button id="finish-btn" class="btn btn-success" style="display: none;">إنهاء الاختبار</button>
+        <button id="prev-btn" class="btn btn-secondary">Previous</button>
+        <button id="next-btn" class="btn btn-primary">Next</button>
+        <button id="finish-btn" class="btn btn-success" style="display: none;">Finish Quiz</button>
     </div>
 </div>
 
@@ -155,13 +155,13 @@
 </style>
 
 <script>
-// تمرير البيانات من Jinja إلى JavaScript
+// Pass data from Jinja to JavaScript
 const QUIZ_DATA = JSON.parse('{{ questions|safe }}');
 const GROUP_ID = "{{ group.id if group else 'null' }}";
 const TIME_LIMIT = "{{ group.time_limit if group and group.time_limit else 3600 }}";
 
 (function() {
-    // تحويل البيانات إلى الأنواع المناسبة
+    // Convert data to appropriate types
     const questions = QUIZ_DATA;
     const groupId = GROUP_ID !== 'null' ? parseInt(GROUP_ID) : null;
     const timeLimit = parseInt(TIME_LIMIT);
@@ -199,7 +199,7 @@ const TIME_LIMIT = "{{ group.time_limit if group and group.time_limit else 3600 
             optionsContainer.appendChild(optionDiv);
         });
         
-        document.getElementById('question-counter').textContent = `السؤال ${index + 1} من ${questions.length}`;
+        document.getElementById('question-counter').textContent = `Question ${index + 1} of ${questions.length}`;
         document.getElementById('prev-btn').disabled = index === 0;
         document.getElementById('next-btn').style.display = index === questions.length - 1 ? 'none' : 'inline-block';
         document.getElementById('finish-btn').style.display = index === questions.length - 1 ? 'inline-block' : 'none';
@@ -222,17 +222,17 @@ const TIME_LIMIT = "{{ group.time_limit if group and group.time_limit else 3600 
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('حدث خطأ أثناء تسليم الاختبار');
+                throw new Error('An error occurred while submitting the quiz');
             }
             return response.text();
         })
         .then(html => {
-            // استبدال محتوى الصفحة بنتيجة الاختبار
+            // Replace page content with quiz result
             document.documentElement.innerHTML = html;
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('حدث خطأ أثناء تسليم الاختبار. يرجى المحاولة مرة أخرى.');
+            alert('An error occurred while submitting the quiz. Please try again.');
         });
     }
 
@@ -249,32 +249,26 @@ const TIME_LIMIT = "{{ group.time_limit if group and group.time_limit else 3600 
         }
     }
 
-    // تهيئة الاختبار عند تحميل الصفحة
-    document.addEventListener('DOMContentLoaded', () => {
-        showQuestion(0);
-        updateTimer();
-
-        document.getElementById('prev-btn').addEventListener('click', () => {
-            if (currentQuestionIndex > 0) {
-                currentQuestionIndex--;
-                showQuestion(currentQuestionIndex);
-            }
-        });
-
-        document.getElementById('next-btn').addEventListener('click', () => {
-            if (currentQuestionIndex < questions.length - 1) {
-                currentQuestionIndex++;
-                showQuestion(currentQuestionIndex);
-            }
-        });
-
-        document.getElementById('finish-btn').addEventListener('click', (e) => {
-            e.preventDefault();
-            if (confirm('هل أنت متأكد من أنك تريد إنهاء الاختبار؟')) {
-                submitQuiz();
-            }
-        });
+    // Initialize quiz
+    document.getElementById('prev-btn').addEventListener('click', () => {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            showQuestion(currentQuestionIndex);
+        }
     });
+
+    document.getElementById('next-btn').addEventListener('click', () => {
+        if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            showQuestion(currentQuestionIndex);
+        }
+    });
+
+    document.getElementById('finish-btn').addEventListener('click', submitQuiz);
+
+    // Start quiz
+    showQuestion(0);
+    updateTimer();
 })();
 </script>
 {% endblock %} 

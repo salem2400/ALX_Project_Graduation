@@ -3,7 +3,7 @@
 {% block content %}
 <div class="quiz-container">
     <div class="quiz-header">
-        <h1>الاختبار</h1>
+        <h1>Quiz</h1>
         <div class="timer" id="timer">
             <i class="fas fa-clock"></i>
             <span id="time-display">--:--</span>
@@ -13,12 +13,12 @@
     <div class="questions-container">
         <form id="quiz-form" method="POST" action="{{ url_for('routes.submit_quiz') }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="start_time" id="start_time">
+            <input type="hidden" name="start_time" id="start_time">
         
-        {% for question in questions %}
+            {% for question in questions %}
             <div class="question-card" id="question-{{ loop.index }}" {% if not loop.first %}style="display: none;"{% endif %}>
                 <div class="question-header">
-                    <span class="question-number">السؤال {{ loop.index }}/{{ questions|length }}</span>
+                    <span class="question-number">Question {{ loop.index }}/{{ questions|length }}</span>
                 </div>
                 
                 <div class="question-content">
@@ -35,36 +35,36 @@
                                    required>
                             <label for="question-{{ question.id }}-option-{{ loop.index }}" 
                                    class="option-label">{{ option }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
                 
                 <div class="navigation-buttons">
                     {% if not loop.first %}
                     <button type="button" class="btn btn-secondary prev-btn" 
                             data-question="{{ loop.index - 1 }}">
                         <i class="fas fa-arrow-right"></i>
-                        السؤال السابق
+                        Previous Question
                     </button>
                     {% endif %}
                     
                     {% if not loop.last %}
                     <button type="button" class="btn btn-primary next-btn" 
                             data-question="{{ loop.index + 1 }}">
-                        السؤال التالي
+                        Next Question
                         <i class="fas fa-arrow-left"></i>
                     </button>
                     {% else %}
                     <button type="submit" class="btn btn-submit">
-                        إنهاء الاختبار
+                        Finish Quiz
                         <i class="fas fa-check"></i>
                     </button>
                     {% endif %}
                 </div>
-        </div>
+            </div>
             {% endfor %}
-    </form>
+        </form>
     </div>
 </div>
 
@@ -237,10 +237,10 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // تعيين وقت البداية
+    // Set start time
     document.getElementById('start_time').value = Math.floor(Date.now() / 1000);
     
-    // إضافة مستمعي الأحداث للأزرار
+    // Add event listeners to buttons
     document.querySelectorAll('.prev-btn, .next-btn').forEach(button => {
         button.addEventListener('click', function(e) {
             const questionNumber = parseInt(this.getAttribute('data-question'), 10);
@@ -249,8 +249,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // تحديث المؤقت كل ثانية
-    let timeLimit = 2 * 60; // دقيقتين
+    // Update timer every second
+    let timeLimit = 2 * 60; // 2 minutes
     const timerInterval = setInterval(updateTimer, 1000);
     
     function updateTimer() {
@@ -273,12 +273,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function showQuestion(questionNumber) {
-    // إخفاء جميع الأسئلة
+    // Hide all questions
     document.querySelectorAll('.question-card').forEach(card => {
         card.style.display = 'none';
     });
     
-    // إظهار السؤال المطلوب
+    // Show the requested question
     document.getElementById(`question-${questionNumber}`).style.display = 'block';
 }
 </script>

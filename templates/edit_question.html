@@ -10,8 +10,8 @@
                         <i class="fas fa-edit"></i>
                     </div>
                     <div class="header-text">
-                        <h2>تعديل السؤال</h2>
-                        <p class="text-muted">قم بتعديل تفاصيل السؤال بالأسفل</p>
+                        <h2>Edit Question</h2>
+                        <p class="text-muted">Modify the question details below</p>
                     </div>
                 </div>
             </div>
@@ -22,47 +22,47 @@
                     <div class="form-group mb-4">
                         <label for="text" class="form-label">
                             <i class="fas fa-question-circle"></i>
-                            نص السؤال
+                            Question Text
                         </label>
-                        {{ form.text(class="form-control custom-input", id="text", required=true, placeholder="اكتب نص السؤال هنا...") }}
+                        {{ form.text(class="form-control custom-input", id="text", required=true, placeholder="Write your question here...") }}
                     </div>
 
                     <div class="options-section">
                         <h3 class="options-title">
                             <i class="fas fa-list-ul"></i>
-                            خيارات الإجابة
+                            Answer Options
                         </h3>
                         <div class="options-grid">
                             <div class="form-group option-card">
                                 <label for="option1" class="form-label">
                                     <i class="fas fa-check-circle text-primary"></i>
-                                    الخيار الأول
+                                    First Option
                                 </label>
-                                {{ form.option1(class="form-control custom-input", id="option1", required=true, placeholder="اكتب الخيار الأول...") }}
+                                {{ form.option1(class="form-control custom-input", id="option1", required=true, placeholder="Write the first option...") }}
                             </div>
 
                             <div class="form-group option-card">
                                 <label for="option2" class="form-label">
                                     <i class="fas fa-check-circle text-success"></i>
-                                    الخيار الثاني
+                                    Second Option
                                 </label>
-                                {{ form.option2(class="form-control custom-input", id="option2", required=true, placeholder="اكتب الخيار الثاني...") }}
+                                {{ form.option2(class="form-control custom-input", id="option2", required=true, placeholder="Write the second option...") }}
                             </div>
 
                             <div class="form-group option-card">
                                 <label for="option3" class="form-label">
                                     <i class="fas fa-check-circle text-info"></i>
-                                    الخيار الثالث
+                                    Third Option
                                 </label>
-                                {{ form.option3(class="form-control custom-input", id="option3", required=true, placeholder="اكتب الخيار الثالث...") }}
+                                {{ form.option3(class="form-control custom-input", id="option3", required=true, placeholder="Write the third option...") }}
                             </div>
 
                             <div class="form-group option-card">
                                 <label for="option4" class="form-label">
                                     <i class="fas fa-check-circle text-warning"></i>
-                                    الخيار الرابع
+                                    Fourth Option
                                 </label>
-                                {{ form.option4(class="form-control custom-input", id="option4", required=true, placeholder="اكتب الخيار الرابع...") }}
+                                {{ form.option4(class="form-control custom-input", id="option4", required=true, placeholder="Write the fourth option...") }}
                             </div>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                     <div class="form-group mb-4 correct-answer-section">
                         <label for="correct_answer" class="form-label">
                             <i class="fas fa-star text-warning"></i>
-                            الإجابة الصحيحة
+                            Correct Answer
                         </label>
                         {{ form.correct_answer(class="form-control custom-select", id="correct_answer", required=true) }}
                     </div>
@@ -78,11 +78,11 @@
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary btn-with-icon">
                             <i class="fas fa-save"></i>
-                            حفظ التغييرات
+                            Save Changes
                         </button>
                         <a href="{{ url_for('routes.custom_questions') }}" class="btn btn-secondary btn-with-icon">
                             <i class="fas fa-times"></i>
-                            إلغاء
+                            Cancel
                         </a>
                     </div>
                 </form>
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
-        defaultOption.textContent = 'اختر الإجابة الصحيحة';
+        defaultOption.textContent = 'Select the correct answer';
         correctAnswerSelect.appendChild(defaultOption);
         
         options.forEach((option, index) => {
@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     updateCorrectAnswerOptions();
 
-    // إضافة تأثيرات حركية للحقول
+    // Add animation effects to fields
     const inputs = document.querySelectorAll('.custom-input, .custom-select');
     inputs.forEach(input => {
         input.addEventListener('focus', function() {
