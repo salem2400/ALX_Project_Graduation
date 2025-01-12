@@ -32,7 +32,7 @@ def add_question():
     if group_id:
         group = QuestionGroup.query.get_or_404(group_id)
         if group.user_id != current_user.id:
-            flash('ليس لديك صلاحية لإضافة أسئلة لهذه المجموعة', 'error')
+            flash('You have no authority to add questions to this group', 'error')
             return redirect(url_for('routes.custom_questions'))
     
     form = QuestionForm()
@@ -44,7 +44,7 @@ def add_question():
             form.option4.data
         ]
         
-        # الحصول على الإجابة الصحيحة مباشرة
+        # Get the right answer directly
         correct_answer = form.correct_answer.data
         
         new_question = CustomQuestion(
@@ -58,13 +58,13 @@ def add_question():
         try:
             db.session.add(new_question)
             db.session.commit()
-            flash('تم إضافة السؤال بنجاح!', 'success')
+            flash('The question has been added successfully !', 'success')
             if group_id:
                 return redirect(url_for('routes.view_group_questions', group_id=group_id))
             return redirect(url_for('routes.custom_questions'))
         except Exception as e:
             db.session.rollback()
-            flash('حدث خطأ أثناء إضافة السؤال', 'error')
+            flash('Error occurred while adding question', 'error')
             return redirect(url_for('routes.add_question', group_id=group_id))
             
     return render_template('add_question.html', form=form, group_id=group_id, group=group)
@@ -75,7 +75,7 @@ def edit_question(question_id):
     question = CustomQuestion.query.get_or_404(question_id)
     
     if question.user_id != current_user.id:
-        flash('ليس لديك صلاحية لتعديل هذا السؤال', 'error')
+        flash('You have no authority to modify this question ', 'error')
         return redirect(url_for('routes.custom_questions'))
     
     form = QuestionForm()
@@ -100,13 +100,13 @@ def edit_question(question_id):
         
         try:
             db.session.commit()
-            flash('تم تحديث السؤال بنجاح', 'success')
+            flash('Question successfully updated', 'success')
             if question.group_id:
                 return redirect(url_for('routes.view_group_questions', group_id=question.group_id))
             return redirect(url_for('routes.custom_questions'))
         except Exception as e:
             db.session.rollback()
-            flash('حدث خطأ أثناء تحديث السؤال', 'error')
+            flash('An error occurred while updating the question', 'error')
     
     return render_template('edit_question.html', form=form, question=question)
 
@@ -137,9 +137,9 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
-            flash('تم تسجيل الدخول بنجاح!', 'success')
+            flash('Login successfully !', 'success')
             return redirect(url_for('routes.home'))
-        flash('البريد الإلكتروني أو كلمة المرور غير صحيحة', 'error')
+        flash('Email or password incorrect', 'error')
     return render_template('login.html', form=form)
 
 @routes_bp.route('/register', methods=['GET', 'POST'])
@@ -147,7 +147,7 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         if User.query.filter_by(email=form.email.data).first():
-            flash('البريد الإلكتروني مسجل بالفعل', 'error')
+            flash('Email already registered', 'error')
             return render_template('register.html', form=form)
             
         user = User(
@@ -159,11 +159,11 @@ def register():
         try:
             db.session.add(user)
             db.session.commit()
-            flash('تم إنشاء حسابك بنجاح!', 'success')
+            flash('Your account has been successfully created!', 'success')
             return redirect(url_for('routes.login'))
         except Exception as e:
             db.session.rollback()
-            flash('حدث خطأ أثناء التسجيل. يرجى المحاولة مرة أخرى.', 'error')
+            flash('An error occurred during the registration, please try again.', 'error')
             
     return render_template('register.html', form=form)
 
@@ -179,13 +179,13 @@ def logout():
 @routes_bp.route('/dashboard')
 @login_required
 def dashboard():
-    # الحصول على نتائج الاختبارات العادية
+    # Get regular test results
     regular_quiz_results = QuizResult.query.filter_by(
         user_id=current_user.id,
         is_custom_quiz=False
     ).order_by(QuizResult.completed_at.desc()).all()
     
-    # الحصول على نتائج الاختبارات المخصصة
+    # Get customized test results
     custom_quiz_results = QuizResult.query.filter_by(
         user_id=current_user.id,
         is_custom_quiz=True
@@ -234,7 +234,7 @@ def submit_quiz():
     from flask_wtf import FlaskForm
     form = FlaskForm()
     if not form.validate():
-        flash('خطأ في التحقق من صحة النموذج', 'error')
+        flash('Error in validating the form', 'error')
         return redirect(url_for('routes.quiz'))
     
     questions = get_questions()
@@ -252,7 +252,7 @@ def submit_quiz():
         if user_answer == question['answer']:
             score += 1
     
-    # حفظ نتيجة الاختبار
+    # Save the quiz result to the database
     quiz_result = QuizResult(
         user_id=current_user.id,
         score=score,
@@ -264,7 +264,7 @@ def submit_quiz():
         db.session.add(quiz_result)
         db.session.commit()
         
-        # بناء URL مع الإجابات لصفحة تفاصيل الاختبار
+        # Redirect to the quiz details page
         from urllib.parse import quote
         base_url = url_for('routes.quiz_details', quiz_id=quiz_result.id)
         query_params = []
@@ -275,9 +275,9 @@ def submit_quiz():
         details_url = f"{base_url}?{'&'.join(query_params)}"
         return redirect(details_url)
     except Exception as e:
-        print(f"Error: {str(e)}")  # طباعة الخطأ للتصحيح
+        print(f"Error: {str(e)}")  # Print the error for debugging
         db.session.rollback()
-        flash('حدث خطأ أثناء حفظ نتيجة الاختبار', 'error')
+        flash('Error occurred while saving test result', 'error')
         return redirect(url_for('routes.dashboard'))
 
 @routes_bp.route('/api/login', methods=['POST'])
@@ -353,8 +353,8 @@ def start_custom_quiz():
 @login_required
 def submit_custom_quiz():
     if not request.is_json:
-        flash('نوع المحتوى غير صحيح', 'error')
-        return 'نوع المحتوى غير صحيح', 415
+        flash('The type of content is incorrect', 'error')
+        return 'The type of content is incorrect', 415
 
     data = request.get_json()
     user_answers = data.get('answers', {})
@@ -362,7 +362,7 @@ def submit_custom_quiz():
     group_id = data.get('group_id')
     
     if not question_ids:
-        flash('لم يتم العثور على أسئلة الاختبار', 'error')
+        flash('Test questions not found', 'error')
         return redirect(url_for('routes.dashboard'))
 
     score = 0
@@ -386,7 +386,7 @@ def submit_custom_quiz():
             'is_correct': is_correct
         })
 
-    # حفظ نتيجة الاختبار في قاعدة البيانات
+    # Save the quiz result to the database
     quiz_result = QuizResult(
         user_id=current_user.id,
         score=score,
@@ -401,7 +401,7 @@ def submit_custom_quiz():
         db.session.add(quiz_result)
         db.session.commit()
 
-        # إزالة وقت بدء الاختبار من الجلسة
+        # Delete the quiz start time from the session
         session.pop('quiz_start_time', None)
 
         return render_template('quiz_result.html',
@@ -410,8 +410,8 @@ def submit_custom_quiz():
                             group=QuestionGroup.query.get(group_id) if group_id else None)
     except Exception as e:
         db.session.rollback()
-        print(f"Error: {str(e)}")  # طباعة الخطأ للتصحيح
-        return 'حدث خطأ أثناء حفظ نتيجة الاختبار', 500
+        print(f"Error: {str(e)}")  # Print the error for debugging
+        return 'Error occurred while saving test result', 500
 
 @routes_bp.route('/question-groups')
 @login_required
@@ -427,12 +427,12 @@ def add_question_group():
         group = QuestionGroup(
             name=form.name.data,
             description=form.description.data,
-            time_limit=form.time_limit.data * 60,  # تحويل الدقائق إلى ثواني
+            time_limit=form.time_limit.data * 60,  # Convert minutes to seconds
             user_id=current_user.id
         )
         db.session.add(group)
         db.session.commit()
-        flash('تم إنشاء المجموعة بنجاح!', 'success')
+        flash('تم إThe group was successfully created !', 'success')
         return redirect(url_for('routes.custom_questions'))
     return render_template('add_question_group.html', form=form)
 

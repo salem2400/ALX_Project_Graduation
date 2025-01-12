@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 migrate = Migrate()
 
-# تكوين المسار المطلق لقاعدة البيانات
+# Configuration of the database's absolute path
 basedir = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(basedir, 'instance', 'database.db')
 

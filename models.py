@@ -32,7 +32,7 @@ class QuizResult(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     score = db.Column(db.Integer, nullable=False)
     total_questions = db.Column(db.Integer, nullable=False)
-    time_taken = db.Column(db.Integer)  # بالثواني
+    time_taken = db.Column(db.Integer)  # in seconds
     completed_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_custom_quiz = db.Column(db.Boolean, default=False)
     group_id = db.Column(db.Integer, db.ForeignKey('question_group.id', name='fk_quiz_result_group'), nullable=True)
@@ -44,11 +44,11 @@ class QuestionGroup(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
-    time_limit = db.Column(db.Integer, default=300)  # الوقت بالثواني
+    time_limit = db.Column(db.Integer, default=300)  # in seconds
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # العلاقة مع الأسئلة
+    # Relationship with Questions
     questions = db.relationship('CustomQuestion', backref='group', lazy=True)
     
     def __repr__(self):
@@ -59,7 +59,7 @@ class CustomQuestion(db.Model):
     text = db.Column(db.Text, nullable=False)
     options = db.Column(db.JSON, nullable=False)
     correct_answer = db.Column(db.String(200), nullable=False)
-    time_limit = db.Column(db.Integer, default=60)  # الوقت بالثواني
+    time_limit = db.Column(db.Integer, default=60)  # in seconds
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     group_id = db.Column(db.Integer, db.ForeignKey('question_group.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
