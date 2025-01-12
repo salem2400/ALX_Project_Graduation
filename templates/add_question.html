@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('option4')
     ];
 
-    // تحديث خيارات القائمة المنسدلة عند تغيير أي خيار
+    ////Update drop-down menu options when changing any option
     options.forEach((option, index) => {
         option.addEventListener('input', function() {
             updateCorrectAnswerOptions();
@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // تحديث الخيارات عند تحميل الصفحة
+    //Updated options when loading page
     updateCorrectAnswerOptions();
 });
 </script>
