@@ -441,7 +441,7 @@ def add_question_group():
 def edit_question_group(group_id):
     group = QuestionGroup.query.get_or_404(group_id)
     if group.user_id != current_user.id:
-        flash('ليس لديك صلاحية لتعديل هذه المجموعة', 'error')
+        flash('You have no authority to modify this group', 'error')
         return redirect(url_for('routes.custom_questions'))
     
     form = QuestionGroupForm(obj=group)
@@ -450,10 +450,10 @@ def edit_question_group(group_id):
         group.description = form.description.data
         group.time_limit = form.time_limit.data * 60
         db.session.commit()
-        flash('تم تحديث المجموعة بنجاح!', 'success')
+        flash('The collection has been successfully updated!', 'success')
         return redirect(url_for('routes.custom_questions'))
     
-    # تحويل الثواني إلى دقائق للعرض في النموذج
+    # make sure the time limit is in minutes
     form.time_limit.data = group.time_limit // 60
     return render_template('edit_question_group.html', form=form, group=group)
 
@@ -462,12 +462,12 @@ def edit_question_group(group_id):
 def delete_question_group(group_id):
     group = QuestionGroup.query.get_or_404(group_id)
     if group.user_id != current_user.id:
-        flash('ليس لديك صلاحية لحذف هذه المجموعة', 'error')
+        flash('You have no authority to delete this group', 'error')
         return redirect(url_for('routes.custom_questions'))
     
     db.session.delete(group)
     db.session.commit()
-    flash('تم حذف المجموعة بنجاح!', 'success')
+    flash('The group was successfully deleted!', 'success')
     return redirect(url_for('routes.custom_questions'))
 
 @routes_bp.route('/view-group-questions/<int:group_id>')
@@ -475,7 +475,7 @@ def delete_question_group(group_id):
 def view_group_questions(group_id):
     group = QuestionGroup.query.get_or_404(group_id)
     if group.user_id != current_user.id:
-        flash('ليس لديك صلاحية للوصول إلى هذه المجموعة', 'error')
+        flash('You have no access to this group', 'error')
         return redirect(url_for('routes.custom_questions'))
     return render_template('group_questions.html', group=group)
 
@@ -484,15 +484,15 @@ def view_group_questions(group_id):
 def start_group_quiz(group_id):
     group = QuestionGroup.query.get_or_404(group_id)
     if group.user_id != current_user.id:
-        flash('ليس لديك صلاحية للوصول إلى هذه المجموعة', 'error')
+        flash('You have no access to this group', 'error')
         return redirect(url_for('routes.question_groups'))
     
     questions = CustomQuestion.query.filter_by(group_id=group_id).all()
     if not questions:
-        flash('لا توجد أسئلة في هذه المجموعة!', 'error')
+        flash('There are no questions in this group!', 'error')
         return redirect(url_for('routes.question_groups'))
     
-    # تحويل الأسئلة إلى قائمة من القواميس
+    # shuffle the questions
     questions_data = []
     for question in questions:
         questions_data.append({
@@ -505,7 +505,7 @@ def start_group_quiz(group_id):
     import json
     from flask import json as flask_json
     
-    # تخزين وقت بدء الاختبار في الجلسة
+    # restore the answers from the session
     session['quiz_start_time'] = datetime.now().timestamp()
     
     return render_template('custom_quiz.html', 
@@ -517,7 +517,7 @@ def start_group_quiz(group_id):
 def submit_group_quiz(group_id):
     group = QuestionGroup.query.get_or_404(group_id)
     if group.user_id != current_user.id:
-        flash('ليس لديك صلاحية للوصول إلى هذه المجموعة', 'error')
+        flash('You have no access to this group', 'error')
         return redirect(url_for('routes.question_groups'))
     
     questions = CustomQuestion.query.filter_by(group_id=group_id).all()
@@ -526,7 +526,7 @@ def submit_group_quiz(group_id):
     end_time = datetime.now().timestamp()
     time_taken = max(0, int(end_time - start_time))
     
-    # جمع إجابات المستخدم
+    # calculate the score
     user_answers = {}
     for question in questions:
         answer_key = f'answer-{question.id}'
@@ -535,7 +535,7 @@ def submit_group_quiz(group_id):
         if user_answer == question.correct_answer:
             score += 1
     
-    # حفظ نتيجة الاختبار
+    # save the quiz result to the database
     quiz_result = QuizResult(
         user_id=current_user.id,
         score=score,
@@ -549,21 +549,21 @@ def submit_group_quiz(group_id):
         db.session.add(quiz_result)
         db.session.commit()
         
-        # تخزين الإجابات في الجلسة
+        # restore the answers from the session
         from flask import session
         session[f'quiz_answers_{quiz_result.id}'] = user_answers
         
-        # طباعة معلومات التصحيح
+        # print the quiz result details
         print(f"Quiz Result ID: {quiz_result.id}")
         print(f"User Answers: {user_answers}")
         print(f"Score: {score}/{len(questions)}")
         
-        # التوجيه إلى صفحة النتائج
+        #redirect to the quiz result page
         return redirect(url_for('routes.quiz_result', quiz_id=quiz_result.id))
     except Exception as e:
-        print(f"Error: {str(e)}")  # طباعة الخطأ للتصحيح
+        print(f"Error: {str(e)}")  #print the error for debugging
         db.session.rollback()
-        flash('حدث خطأ أثناء حفظ نتيجة الاختبار', 'error')
+        flash('Error occurred while saving test result', 'error')
         return redirect(url_for('routes.dashboard'))
 
 @routes_bp.route('/quiz-result/<int:quiz_id>')
@@ -571,21 +571,19 @@ def submit_group_quiz(group_id):
 def quiz_result(quiz_id):
     quiz_result = QuizResult.query.get_or_404(quiz_id)
     if quiz_result.user_id != current_user.id:
-        flash('ليس لديك صلاحية للوصول إلى هذه النتيجة', 'error')
+        flash('You have no access to this result', 'error')
         return redirect(url_for('routes.dashboard'))
     
-    # استرجاع معلومات المجموعة إذا كان اختبار مخصص
+    # restore the answers from the session
     group = None
     questions_data = []
     
     if quiz_result.is_custom_quiz and quiz_result.group_id:
         group = QuestionGroup.query.get(quiz_result.group_id)
-        # استرجاع معلومات الأسئلة من الجلسة
         questions_data = session.get(f'quiz_answers_{quiz_id}', [])
-        # حذف المعلومات من الجلسة بعد استرجاعها
         session.pop(f'quiz_answers_{quiz_id}', None)
     else:
-        # للاختبارات العادية
+        #normal quiz 
         quiz_questions = get_questions()
         for i, question in enumerate(quiz_questions):
             user_answer = request.args.get(f'q{i+1}')
