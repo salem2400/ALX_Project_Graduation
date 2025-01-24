@@ -1,246 +1,109 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz System</title>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/solid.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="{{ url_for('static', filename='js/notifications.js') }}" defer></script>
     <style>
-        /* Navigation Bar Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
         nav {
-            background: linear-gradient(135deg, var(--primary-color), #2962ff);
+            background: #f8f9fa;
             padding: 1rem 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
         }
-
-        .nav-links a {
-            position: relative;
-            color: white;
-            text-decoration: none;
-            padding: 0.8rem 1.2rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin: 0 0.5rem;
-            overflow: hidden;
-        }
-
-        .nav-links a:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-        }
-
-        .nav-links a:hover:before {
-            transform: translateX(0);
-        }
-
-        .nav-links a:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .nav-links a i {
-            font-size: 1.2rem;
-            transition: transform 0.3s ease;
-        }
-
-        .nav-links a:hover i {
-            transform: scale(1.2);
-        }
-
-        /* Special styling for logout button */
-        .nav-links a[href*="logout"] {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .nav-links a[href*="logout"]:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        /* Active link effect */
-        .nav-links a.active {
-            background: rgba(255, 255, 255, 0.2);
-            font-weight: bold;
-        }
-
-        /* Logo styling */
-        .logo a {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-            text-decoration: none;
+        
+        .nav-links {
             display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            transition: all 0.3s ease;
-        }
-
-        .logo a:hover {
-            transform: scale(1.05);
-        }
-
-        .logo i {
-            font-size: 1.8rem;
-            color: white;
-        }
-
-        /* Mobile screen improvements */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .nav-links a {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-
-        /* Special styling for login button */
-        .auth-buttons {
-            display: flex;
+            justify-content: center;
             gap: 1rem;
-            align-items: center;
         }
-
-        .auth-btn {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 8px;
+        
+        .nav-links a {
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #007bff;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .mb-4 {
+            margin-bottom: 2rem;
         }
 
-        .auth-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
         }
 
-        .auth-btn i {
-            font-size: 1.2rem;
-            transition: transform 0.3s ease;
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
         }
 
-        .auth-btn:hover i {
-            transform: scale(1.2);
-        }
-
-        /* Special styling for register button */
-        .auth-btn-register {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .auth-btn-register:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.4);
-        }
-
-        @media (max-width: 768px) {
-            .auth-buttons {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            .auth-btn {
-                width: 100%;
-                justify-content: center;
-            }
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
         }
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
     <nav>
         <div class="container">
-            <div class="logo">
-                <a href="{{ url_for('routes.home') }}">
-                    <i class="fas fa-graduation-cap"></i>
-                    Quiz System
-                </a>
-            </div>
-            
             <div class="nav-links">
+                <a href="{{ url_for('routes.index') }}">Home</a>
                 {% if current_user.is_authenticated %}
-                <a href="{{ url_for('routes.dashboard') }}">
-                    <i class="fas fa-chart-bar"></i>
-                    Dashboard
-                </a>
-                <a href="{{ url_for('routes.custom_questions') }}">
-                    <i class="fas fa-edit"></i>
-                    Custom Questions
-                </a>
-                <a href="{{ url_for('routes.logout') }}">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </a>
+                    <a href="{{ url_for('routes.dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('routes.quiz') }}">Take Quiz</a>
+                    <a href="{{ url_for('routes.start_custom_quiz') }}">Custom Quiz</a>
+                    <a href="{{ url_for('routes.logout') }}">Logout</a>
                 {% else %}
-                <div class="auth-buttons">
-                    <a href="{{ url_for('routes.login') }}" class="auth-btn">
-                        <i class="fas fa-sign-in-alt"></i>
-                        Login
-                    </a>
-                    <a href="{{ url_for('routes.register') }}" class="auth-btn auth-btn-register">
-                        <i class="fas fa-user-plus"></i>
-                        Register
-                    </a>
-                </div>
+                    <a href="{{ url_for('routes.login') }}">Login</a>
+                    <a href="{{ url_for('routes.register') }}">Register</a>
                 {% endif %}
             </div>
         </div>
     </nav>
 
-    <!-- Notifications Container -->
-    <div id="notifications-container"></div>
-
-    <!-- Flash Messages Data -->
-    <div id="flash-messages" data-messages='[
+    <main>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                {% for category, message in messages %}
-                    {"message": "{{ message }}", "category": "{{ category }}"}{% if not loop.last %},{% endif %}
-                {% endfor %}
+                <div class="container text-center mb-4">
+                    {% for category, message in messages %}
+                        <div class="alert {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
             {% endif %}
         {% endwith %}
-    ]'></div>
 
-    {% block content %}{% endblock %}
-
-    <script>
-        // Convert Flask flash messages to notifications
-        document.addEventListener('DOMContentLoaded', function() {
-            const flashMessagesElement = document.getElementById('flash-messages');
-            const messages = JSON.parse(flashMessagesElement.dataset.messages || '[]');
-            
-            messages.forEach(function(msg) {
-                showNotification(msg.message, msg.category);
-            });
-        });
-    </script>
-
-    {% block scripts %}{% endblock %}
+        {% block content %}{% endblock %}
+    </main>
 </body>
 </html>

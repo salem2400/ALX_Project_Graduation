@@ -9,38 +9,52 @@ import os
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__)
-migrate = Migrate()
+def create_app():
+    app = Flask(__name__)
+    
+    # Ensure instance folder exists
+    try:
+        os.makedirs(os.path.join(app.root_path, 'instance'), exist_ok=True)
+    except Exception as e:
+        logger.error(f"Error creating instance directory: {e}")
 
-# Configuration of the database's absolute path
-basedir = os.path.abspath(os.path.dirname(__file__))
-db_path = os.path.join(basedir, 'instance', 'database.db')
+    # Configuration of the database's absolute path
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    db_path = os.path.join(basedir, 'instance', 'database.db')
 
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-default-secret-key')
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your-default-jwt-secret-key')
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-default-secret-key')
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'your-default-jwt-secret-key')
 
-# Error handling for database connection
-try:
+    # Initialize extensions
     db.init_app(app)
+    migrate = Migrate(app, db)
+
+    # Initialize login manager
+    login_manager = LoginManager(app)
+    login_manager.login_view = 'routes.login'
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        from models import User
+        return User.query.get(int(user_id))
+
+    # Initialize routes
+    from routes import init_app
+    init_app(app)
+
+    # Create database tables
     with app.app_context():
-        db.create_all()
-    migrate.init_app(app, db)
-except Exception as e:
-    logger.error(f"Error initializing database: {e}")
+        try:
+            db.create_all()
+            logger.info("Database tables created successfully")
+        except Exception as e:
+            logger.error(f"Error creating database tables: {e}")
 
-login_manager = LoginManager(app)
-login_manager.login_view = 'routes.login'
+    return app
 
-@login_manager.user_loader
-def load_user(user_id):
-    from models import User
-    return User.query.get(int(user_id))
-
-# Initialize routes
-from routes import init_app
-init_app(app)
+app = create_app()
 
 @app.route('/test-static')
 def test_static():
@@ -50,9 +64,8 @@ def test_static():
 def test_app():
     return "Flask Application is Working"
 
-logger.info("Starting the Flask application...")
 if __name__ == '__main__':
-    logger.info("Running the application...")
+    logger.info("Starting the Flask application...")
     try:
         app.run(debug=True, port=5019)
     except Exception as e:

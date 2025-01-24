@@ -1,345 +1,128 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="add-question-container">
-    <div class="page-header">
+<div class="container">
+    <div class="welcome-section">
         <h1>Add New Question</h1>
-        {% if group_id %}
-        <p class="group-info">Adding to Group: {{ group.name }}</p>
-        {% endif %}
-    </div>
-
-    <div class="form-card">
-        <form method="POST" class="question-form">
+        <p>Create a new question for your custom quiz</p>
+        
+        <form method="POST" class="form">
             {{ form.hidden_tag() }}
             
             <div class="form-group">
-                <label for="text">Question Text</label>
-                {{ form.text(class="form-control", placeholder="Write your question here...") }}
-                {% if form.text.errors %}
-                    {% for error in form.text.errors %}
-                        <span class="error-message">{{ error }}</span>
-                    {% endfor %}
-                {% endif %}
+                {{ form.text(class="form-control", placeholder="Question Text") }}
+                {% for error in form.text.errors %}
+                    <span class="error">{{ error }}</span>
+                {% endfor %}
             </div>
-
-            <div class="options-section">
-                <h3>Answer Options</h3>
-                <div class="options-grid">
-                    <div class="option-group">
-                        <label for="option1">First Option</label>
-                        {{ form.option1(class="form-control", placeholder="Write the first option...") }}
-                        {% if form.option1.errors %}
-                            {% for error in form.option1.errors %}
-                                <span class="error-message">{{ error }}</span>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-
-                    <div class="option-group">
-                        <label for="option2">Second Option</label>
-                        {{ form.option2(class="form-control", placeholder="Write the second option...") }}
-                        {% if form.option2.errors %}
-                            {% for error in form.option2.errors %}
-                                <span class="error-message">{{ error }}</span>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-
-                    <div class="option-group">
-                        <label for="option3">Third Option</label>
-                        {{ form.option3(class="form-control", placeholder="Write the third option...") }}
-                        {% if form.option3.errors %}
-                            {% for error in form.option3.errors %}
-                                <span class="error-message">{{ error }}</span>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-
-                    <div class="option-group">
-                        <label for="option4">Fourth Option</label>
-                        {{ form.option4(class="form-control", placeholder="Write the fourth option...") }}
-                        {% if form.option4.errors %}
-                            {% for error in form.option4.errors %}
-                                <span class="error-message">{{ error }}</span>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                </div>
+            
+            <div class="form-group">
+                {{ form.option1(class="form-control", placeholder="Option 1") }}
+                {% for error in form.option1.errors %}
+                    <span class="error">{{ error }}</span>
+                {% endfor %}
             </div>
-
-            <div class="form-group correct-answer-section">
-                <label for="correct_answer">Correct Answer</label>
-                <div class="correct-answer-options">
-                    <select name="correct_answer" id="correct_answer" class="form-control custom-select">
-                        <option value="">Select the correct answer</option>
-                        <option value="option1">Option 1</option>
-                        <option value="option2">Option 2</option>
-                        <option value="option3">Option 3</option>
-                        <option value="option4">Option 4</option>
-                    </select>
-                </div>
-                {% if form.correct_answer.errors %}
-                    {% for error in form.correct_answer.errors %}
-                        <span class="error-message">{{ error }}</span>
-                    {% endfor %}
-                {% endif %}
+            
+            <div class="form-group">
+                {{ form.option2(class="form-control", placeholder="Option 2") }}
+                {% for error in form.option2.errors %}
+                    <span class="error">{{ error }}</span>
+                {% endfor %}
             </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i>
-                    Save Question
-                </button>
-                {% if group_id %}
-                <a href="{{ url_for('routes.view_group_questions', group_id=group_id) }}" class="btn btn-secondary">
-                {% else %}
-                <a href="{{ url_for('routes.custom_questions') }}" class="btn btn-secondary">
-                {% endif %}
-                    <i class="fas fa-times"></i>
-                    Cancel
-                </a>
+            
+            <div class="form-group">
+                {{ form.option3(class="form-control", placeholder="Option 3") }}
+                {% for error in form.option3.errors %}
+                    <span class="error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.option4(class="form-control", placeholder="Option 4") }}
+                {% for error in form.option4.errors %}
+                    <span class="error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="form-group">
+                <label for="correct_answer">Correct Answer:</label>
+                {{ form.correct_answer(class="form-control") }}
+                {% for error in form.correct_answer.errors %}
+                    <span class="error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="actions">
+                <button type="submit" class="btn">Add Question</button>
+                <a href="{{ url_for('routes.custom_questions') }}" class="btn">Cancel</a>
             </div>
         </form>
     </div>
 </div>
 
 <style>
-.add-question-container {
-    max-width: 900px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-    direction: rtl;
-}
-
-.page-header {
+.welcome-section {
     text-align: center;
-    margin-bottom: 2rem;
-}
-
-.page-header h1 {
-    font-size: 2.2rem;
-    color: #1565C0;
-    margin-bottom: 0.5rem;
-}
-
-.group-info {
-    color: #666;
-    font-size: 1.1rem;
-}
-
-.form-card {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     padding: 2rem;
+    margin: 2rem auto;
+    max-width: 600px;
+}
+
+.form {
+    text-align: left;
+    margin-top: 2rem;
 }
 
 .form-group {
-    margin-bottom: 2rem;
-}
-
-.form-group label {
-    display: block;
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: #333;
-    margin-bottom: 0.5rem;
-}
-
-.options-section {
-    margin: 2rem 0;
-}
-
-.options-section h3 {
-    color: #1565C0;
-    font-size: 1.3rem;
-    margin-bottom: 1.5rem;
-}
-
-.options-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-}
-
-.option-group {
-    background: #f8f9fa;
-    padding: 1rem;
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
+    margin-bottom: 1rem;
 }
 
 .form-control {
     width: 100%;
-    padding: 0.8rem 1rem;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
     font-size: 1rem;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    transition: all 0.3s ease;
 }
 
 .form-control:focus {
-    border-color: #1565C0;
-    box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
     outline: none;
+    border-color: #007bff;
 }
 
-.correct-answer-section {
-    background: #e3f2fd;
-    padding: 1.5rem;
-    border-radius: 10px;
-    margin-top: 2rem;
-}
-
-.correct-answer-options {
-    position: relative;
-}
-
-.custom-select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: left 1rem center;
-    background-size: 1em;
-    padding-left: 2.5rem;
-}
-
-.custom-select:focus {
-    border-color: #1565C0;
-    box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
-}
-
-.custom-select option {
-    padding: 0.5rem;
-    font-size: 1rem;
-}
-
-.custom-select option:first-child {
-    color: #666;
-}
-
-.custom-select:invalid {
-    color: #666;
-}
-
-.custom-select option:not(:first-child) {
+label {
+    display: block;
+    margin-bottom: 0.5rem;
     color: #333;
 }
 
-.error-message {
-    color: #dc3545;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
+.error {
     display: block;
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
 }
 
-.form-actions {
+.actions {
     display: flex;
     gap: 1rem;
-    margin-top: 2rem;
     justify-content: center;
+    margin-top: 2rem;
 }
 
 .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.8rem 1.5rem;
-    font-size: 1.1rem;
-    font-weight: 500;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    cursor: pointer;
+    padding: 0.5rem 1rem;
     text-decoration: none;
-    border: none;
-    min-width: 150px;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #1565C0, #0D47A1);
+    border-radius: 4px;
+    background: #007bff;
     color: white;
-    box-shadow: 0 4px 15px rgba(21, 101, 192, 0.3);
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
 }
 
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(21, 101, 192, 0.4);
-}
-
-.btn-secondary {
-    background: white;
-    color: #666;
-    border: 2px solid #e0e0e0;
-}
-
-.btn-secondary:hover {
-    background: #f8f9fa;
-    border-color: #666;
-    color: #333;
-    transform: translateY(-2px);
-}
-
-@media (max-width: 768px) {
-    .options-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .form-actions {
-        flex-direction: column;
-    }
-
-    .btn {
-        width: 100%;
-    }
-
-    .form-card {
-        padding: 1.5rem;
-    }
+.btn:hover {
+    background: #0056b3;
 }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
-    const correctAnswerSelect = document.getElementById('correct_answer');
-    const options = [
-        document.getElementById('option1'),
-        document.getElementById('option2'),
-        document.getElementById('option3'),
-        document.getElementById('option4')
-    ];
-
-    ////Update drop-down menu options when changing any option
-    options.forEach((option, index) => {
-        option.addEventListener('input', function() {
-            updateCorrectAnswerOptions();
-        });
-    });
-
-    function updateCorrectAnswerOptions() {
-        const currentValue = correctAnswerSelect.value;
-        correctAnswerSelect.innerHTML = '<option value="">Select the correct answer</option>';
-        
-        options.forEach((option, index) => {
-            if (option.value.trim()) {
-                const opt = document.createElement('option');
-                opt.value = option.value;
-                opt.textContent = option.value;
-                correctAnswerSelect.appendChild(opt);
-                
-                if (option.value === currentValue) {
-                    correctAnswerSelect.value = currentValue;
-                }
-            }
-        });
-    }
-
-    //Updated options when loading page
-    updateCorrectAnswerOptions();
-});
-</script>
 {% endblock %}

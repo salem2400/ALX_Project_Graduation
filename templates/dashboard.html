@@ -1,369 +1,151 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="dashboard-container">
-    <div class="dashboard-header">
+<div class="container">
+    <div class="welcome-section">
         <h1>Dashboard</h1>
-        <p>Track your progress and performance in quizzes</p>
-    </div>
+        <p>View your quiz history and results</p>
 
-    <div class="stats">
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-file-alt"></i>
-            </div>
-            <div class="stat-value">{{ regular_quiz_results|length + custom_quiz_results|length }}</div>
-            <div class="stat-label">Completed Quizzes</div>
-            <div class="stat-progress">
-                <div class="progress-bar" data-progress="{{ ((regular_quiz_results|length + custom_quiz_results|length) / 10) * 100 }}"></div>
-            </div>
-        </div>
-        
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-chart-line"></i>
-            </div>
-            <div class="stat-value">
-                {% set total_score = (regular_quiz_results + custom_quiz_results)|sum(attribute='score') %}
-                {% set total_questions = (regular_quiz_results + custom_quiz_results)|sum(attribute='total_questions') %}
-                {% if total_questions > 0 %}
-                    {{ ((total_score / total_questions) * 100)|round(1) }}%
+        <div class="quiz-sections">
+            <!-- Regular Quiz Results -->
+            <div class="section">
+                <h2>Regular Quiz Results</h2>
+                {% if regular_quiz_results %}
+                    {% for result in regular_quiz_results %}
+                    <div class="result-box">
+                        <div class="result-header">
+                            <h3>Quiz #{{ loop.index }}</h3>
+                            <span class="date">{{ result.completed_at.strftime('%Y-%m-%d') }}</span>
+                        </div>
+                        <div class="result-details">
+                            <p>Score: <strong>{{ result.score }}/{{ result.total_questions }}</strong></p>
+                            <p>Time: {{ result.time_taken }} seconds</p>
+                        </div>
+                        <a href="{{ url_for('routes.quiz_details', quiz_id=result.id) }}" class="btn">View Details</a>
+                    </div>
+                    {% endfor %}
                 {% else %}
-                    None
+                    <p class="no-results">No regular quiz results yet</p>
                 {% endif %}
             </div>
-            <div class="stat-label">Average Score</div>
-            <div class="stat-progress">
-                <div class="progress-bar" data-progress="{{ (total_score / total_questions * 100) if total_questions > 0 else 0 }}"></div>
-            </div>
-        </div>
 
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-value">
-                {% set all_results = regular_quiz_results + custom_quiz_results %}
-                {% if all_results %}
-                    {{ (all_results|sum(attribute='time_taken') / all_results|length)|round(1) }} seconds
+            <!-- Custom Quiz Results -->
+            <div class="section">
+                <h2>Custom Quiz Results</h2>
+                {% if custom_quiz_results %}
+                    {% for result in custom_quiz_results %}
+                    <div class="result-box">
+                        <div class="result-header">
+                            <h3>Custom Quiz #{{ loop.index }}</h3>
+                            <span class="date">{{ result.completed_at.strftime('%Y-%m-%d') }}</span>
+                        </div>
+                        <div class="result-details">
+                            <p>Score: <strong>{{ result.score }}/{{ result.total_questions }}</strong></p>
+                            <p>Time: {{ result.time_taken }} seconds</p>
+                        </div>
+                        <a href="{{ url_for('routes.quiz_details', quiz_id=result.id) }}" class="btn">View Details</a>
+                    </div>
+                    {% endfor %}
                 {% else %}
-                    None
+                    <p class="no-results">No custom quiz results yet</p>
                 {% endif %}
             </div>
-            <div class="stat-label">Average Response Time</div>
-            <div class="stat-progress">
-                <div class="progress-bar" data-progress="{% if all_results %}{{ 100 - ((all_results|sum(attribute='time_taken') / all_results|length) / 300 * 100) }}{% else %}0{% endif %}"></div>
-            </div>
         </div>
-    </div>
 
-    <div class="quiz-history">
-        <h2>Quiz History</h2>
-        {% set all_results = (regular_quiz_results + custom_quiz_results)|sort(attribute='completed_at', reverse=true) %}
-        {% if all_results %}
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Quiz Type</th>
-                            <th>Score</th>
-                            <th>Time Taken</th>
-                            <th>Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for result in all_results %}
-                        <tr>
-                            <td>{{ result.completed_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                            <td>
-                                {% if result.is_custom_quiz %}
-                                    {% if result.group %}
-                                        {{ result.group.name }}
-                                    {% else %}
-                                        Custom Quiz
-                                    {% endif %}
-                                {% else %}
-                                    Regular Quiz
-                                {% endif %}
-                            </td>
-                            <td>{{ result.score }}/{{ result.total_questions }}</td>
-                            <td>{{ result.time_taken // 60 }} minutes and {{ result.time_taken % 60 }} seconds</td>
-                            <td>
-                                <a href="{{ url_for('routes.quiz_result', quiz_id=result.id) }}" class="btn btn-small">
-                                    <i class="fas fa-eye"></i>
-                                    View
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-chart-bar"></i>
-                </div>
-                <h3>No Quiz Results Yet</h3>
-                <p>Take a quiz to see your results here!</p>
-                <a href="{{ url_for('routes.quiz') }}" class="btn btn-primary">
-                    <i class="fas fa-play"></i>
-                    Start New Quiz
-                </a>
-            </div>
-        {% endif %}
+        <div class="actions">
+            <a href="{{ url_for('routes.quiz') }}" class="btn">Take Regular Quiz</a>
+            <a href="{{ url_for('routes.start_custom_quiz') }}" class="btn">Take Custom Quiz</a>
+        </div>
     </div>
 </div>
 
 <style>
-.dashboard-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-    margin-bottom: 3rem;
-}
-
-.stat-card {
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(135deg, #1565C0, #0D47A1);
-    border-radius: 15px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 20px rgba(21, 101, 192, 0.2);
+.welcome-section {
     text-align: center;
-    color: white;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    transform: translateX(-100%);
-    transition: transform 0.6s;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 8px 30px rgba(21, 101, 192, 0.3);
-}
-
-.stat-card:hover::before {
-    transform: translateX(100%);
-}
-
-.stat-icon {
-    font-size: 2.2rem;
-    color: rgba(255, 255, 255, 0.95);
-    margin-bottom: 1rem;
-    transform: scale(1);
-    transition: transform 0.3s ease;
-}
-
-.stat-card:hover .stat-icon {
-    transform: scale(1.1);
-}
-
-.stat-value {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: white;
-    margin-bottom: 0.5rem;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.stat-label {
-    color: rgba(255, 255, 255, 0.95);
-    font-size: 1.1rem;
-    font-weight: 500;
-}
-
-.stat-progress {
-    margin-top: 1rem;
-}
-
-.progress-bar {
-    height: 6px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 3px;
-    overflow: hidden;
-    position: relative;
-}
-
-.progress-bar::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: var(--progress, 0%);
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 3px;
-    transition: width 0.5s ease;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-}
-
-/* ألوان مختلفة للبطاقات */
-.stat-card:nth-child(1) {
-    background: linear-gradient(135deg, #FF6B6B, #EE5253);
-}
-
-.stat-card:nth-child(2) {
-    background: linear-gradient(135deg, #4834D4, #686DE0);
-}
-
-.stat-card:nth-child(3) {
-    background: linear-gradient(135deg, #20BF6B, #26DE81);
-}
-
-/* تأثير النبض للأيقونات */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-.stat-card:hover .stat-icon i {
-    animation: pulse 1s infinite;
-}
-
-/* تأثير التوهج لشريط التقدم */
-@keyframes glow {
-    0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
-    50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
-    100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
-}
-
-.stat-card:hover .progress-bar::after {
-    animation: glow 2s infinite;
-}
-
-.recent-quizzes {
-    background: white;
-    border-radius: 15px;
     padding: 2rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin: 2rem auto;
+    max-width: 800px;
 }
 
-.section-header {
+.quiz-sections {
+    margin: 2rem 0;
+}
+
+.section {
+    margin-bottom: 3rem;
+    text-align: left;
+}
+
+.section h2 {
+    font-size: 1.3rem;
+    color: #333;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.result-box {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.result-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
 }
 
-.section-title {
-    font-size: 1.8rem;
-    color: #1565C0;
+.result-header h3 {
+    font-size: 1.1rem;
+    color: #333;
     margin: 0;
 }
 
-.quiz-list {
-    display: grid;
-    gap: 1.5rem;
-}
-
-.quiz-card {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 1.5rem;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    align-items: center;
-    gap: 1rem;
-}
-
-.quiz-info h3 {
-    margin: 0 0 0.5rem 0;
-    color: #333;
-}
-
-.quiz-meta {
-    display: flex;
-    gap: 2rem;
+.date {
     color: #666;
     font-size: 0.9rem;
 }
 
-.quiz-score {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #4CAF50;
+.result-details {
+    margin: 1rem 0;
 }
 
-.empty-state {
+.result-details p {
+    margin: 0.3rem 0;
+}
+
+.no-results {
     text-align: center;
-    padding: 4rem 2rem;
-}
-
-.empty-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-    color: #1565C0;
-}
-
-.empty-state h2 {
-    color: #333;
-    margin-bottom: 1rem;
-}
-
-.empty-state p {
     color: #666;
-    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
 }
 
 .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.8rem 1.5rem;
-    font-size: 1.1rem;
-    font-weight: 500;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    display: inline-block;
+    padding: 0.5rem 1rem;
     text-decoration: none;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #1565C0, #0D47A1);
+    border-radius: 4px;
+    background: #007bff;
     color: white;
-    box-shadow: 0 4px 15px rgba(21, 101, 192, 0.3);
+    border: none;
+    cursor: pointer;
 }
 
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(21, 101, 192, 0.4);
-}
-
-@media (max-width: 768px) {
-    .dashboard-container {
-        padding: 1rem;
-    }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .quiz-card {
-        grid-template-columns: 1fr;
-        text-align: center;
-    }
-    
-    .quiz-meta {
-        justify-content: center;
-    }
+.btn:hover {
+    background: #0056b3;
 }
 </style>
 {% endblock %}

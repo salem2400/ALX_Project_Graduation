@@ -120,7 +120,7 @@ def delete_question(question_id):
     return redirect(url_for('routes.custom_questions'))
 
 @routes_bp.route('/')
-def home():
+def index():
     return render_template('index.html')
 
 def get_user_data():
@@ -138,7 +138,7 @@ def login():
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
             flash('Login successfully !', 'success')
-            return redirect(url_for('routes.home'))
+            return redirect(url_for('routes.index'))
         flash('Email or password incorrect', 'error')
     return render_template('login.html', form=form)
 
@@ -174,7 +174,7 @@ def logout():
     from flask import session
     session.clear()
     logout_user()
-    return redirect(url_for('routes.home'))
+    return redirect(url_for('routes.index'))
 
 @routes_bp.route('/dashboard')
 @login_required
@@ -223,10 +223,8 @@ def quiz():
     from flask_wtf import FlaskForm
     form = FlaskForm()
     questions = get_questions()
-    print(f"Loaded {len(questions)} questions")  # Debugging
-    for q in questions:
-        print(q)  # Debugging
-    return render_template('quiz.html', questions=questions, form=form)
+    current_time = datetime.now().timestamp()
+    return render_template('quiz.html', questions=questions, form=form, current_time=current_time)
 
 @routes_bp.route('/submit_quiz', methods=['POST'])
 @login_required

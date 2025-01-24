@@ -1,25 +1,25 @@
 function showNotification(message, type = 'default') {
-    // إزالة أي إشعارات موجودة
+    // Remove any existing notifications
     const existingNotification = document.querySelector('.notification');
     if (existingNotification) {
         existingNotification.remove();
     }
 
-    // إنشاء عنصر الإشعار
+    // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.textContent = message;
 
-    // إضافة الإشعار إلى الصفحة
+    // Add notification to page
     document.body.appendChild(notification);
 
-    // إزالة الإشعار بعد انتهاء التحريك
+    // Remove notification after delay
     setTimeout(() => {
         notification.remove();
-    }, 1500);
+    }, 3000);
 }
 
-// مثال على الاستخدام:
-// showNotification('تم حفظ البيانات بنجاح', 'success');
-// showNotification('حدث خطأ ما', 'error');
-// showNotification('تنبيه مهم', 'warning'); 
+// Example usage:
+// showNotification('Data saved successfully', 'success');
+// showNotification('An error occurred', 'error');
+// showNotification('Important alert', 'warning'); 
