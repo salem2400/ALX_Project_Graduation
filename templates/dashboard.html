@@ -4,57 +4,31 @@
 <div class="container">
     <div class="welcome-section">
         <h1>Dashboard</h1>
-        <p>View your quiz history and results</p>
-
-        <div class="quiz-sections">
-            <!-- Regular Quiz Results -->
-            <div class="section">
-                <h2>Regular Quiz Results</h2>
-                {% if regular_quiz_results %}
-                    {% for result in regular_quiz_results %}
-                    <div class="result-box">
-                        <div class="result-header">
-                            <h3>Quiz #{{ loop.index }}</h3>
-                            <span class="date">{{ result.completed_at.strftime('%Y-%m-%d') }}</span>
-                        </div>
-                        <div class="result-details">
-                            <p>Score: <strong>{{ result.score }}/{{ result.total_questions }}</strong></p>
-                            <p>Time: {{ result.time_taken }} seconds</p>
-                        </div>
-                        <a href="{{ url_for('routes.quiz_details', quiz_id=result.id) }}" class="btn">View Details</a>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="no-results">No regular quiz results yet</p>
-                {% endif %}
-            </div>
-
-            <!-- Custom Quiz Results -->
-            <div class="section">
-                <h2>Custom Quiz Results</h2>
-                {% if custom_quiz_results %}
-                    {% for result in custom_quiz_results %}
-                    <div class="result-box">
-                        <div class="result-header">
-                            <h3>Custom Quiz #{{ loop.index }}</h3>
-                            <span class="date">{{ result.completed_at.strftime('%Y-%m-%d') }}</span>
-                        </div>
-                        <div class="result-details">
-                            <p>Score: <strong>{{ result.score }}/{{ result.total_questions }}</strong></p>
-                            <p>Time: {{ result.time_taken }} seconds</p>
-                        </div>
-                        <a href="{{ url_for('routes.quiz_details', quiz_id=result.id) }}" class="btn">View Details</a>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="no-results">No custom quiz results yet</p>
-                {% endif %}
-            </div>
-        </div>
+        <p>Welcome back, {{ current_user.username }}!</p>
 
         <div class="actions">
-            <a href="{{ url_for('routes.quiz') }}" class="btn">Take Regular Quiz</a>
-            <a href="{{ url_for('routes.start_custom_quiz') }}" class="btn">Take Custom Quiz</a>
+            <a href="{{ url_for('routes.quiz') }}" class="btn">Take Quiz</a>
+            <a href="{{ url_for('routes.custom_questions') }}" class="btn">My Questions</a>
+        </div>
+
+        <div class="results-section">
+            <h2>Recent Quiz Results</h2>
+            {% if quiz_results %}
+                <div class="results-grid">
+                    {% for result in quiz_results %}
+                    <div class="result-box">
+                        <h3>{% if result.is_custom_quiz %}Custom Quiz{% else %}Regular Quiz{% endif %}</h3>
+                        <p class="score">Score: {{ result.score }}%</p>
+                        <p class="date">{{ result.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        <a href="{{ url_for('routes.quiz_result', quiz_id=result.id) }}" class="btn">View Details</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>You haven't taken any quizzes yet. Start by taking a quiz!</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -64,84 +38,75 @@
     text-align: center;
     padding: 2rem;
     margin: 2rem auto;
-    max-width: 800px;
-}
-
-.quiz-sections {
-    margin: 2rem 0;
-}
-
-.section {
-    margin-bottom: 3rem;
-    text-align: left;
-}
-
-.section h2 {
-    font-size: 1.3rem;
-    color: #333;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid #ddd;
-}
-
-.result-box {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-}
-
-.result-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
-
-.result-header h3 {
-    font-size: 1.1rem;
-    color: #333;
-    margin: 0;
-}
-
-.date {
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.result-details {
-    margin: 1rem 0;
-}
-
-.result-details p {
-    margin: 0.3rem 0;
-}
-
-.no-results {
-    text-align: center;
-    color: #666;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 4px;
+    max-width: 1000px;
 }
 
 .actions {
     display: flex;
     gap: 1rem;
     justify-content: center;
-    margin-top: 2rem;
+    margin: 2rem 0;
+}
+
+.results-section {
+    margin-top: 3rem;
+}
+
+.results-section h2 {
+    color: #333;
+    margin-bottom: 2rem;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.result-box {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.result-box h3 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.score {
+    font-size: 1.5rem;
+    color: #28a745;
+    margin-bottom: 0.5rem;
+}
+
+.date {
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.empty-state {
+    text-align: center;
+    color: #666;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin: 2rem 0;
 }
 
 .btn {
-    display: inline-block;
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 1.5rem;
     text-decoration: none;
     border-radius: 4px;
     background: #007bff;
     color: white;
     border: none;
     cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
 }
 
 .btn:hover {

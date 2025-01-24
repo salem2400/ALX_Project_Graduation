@@ -17,28 +17,28 @@
             </div>
             
             <div class="form-group">
-                {{ form.option1(class="form-control", placeholder="Option 1") }}
+                {{ form.option1(class="form-control option-input", placeholder="Option 1") }}
                 {% for error in form.option1.errors %}
                     <span class="error">{{ error }}</span>
                 {% endfor %}
             </div>
             
             <div class="form-group">
-                {{ form.option2(class="form-control", placeholder="Option 2") }}
+                {{ form.option2(class="form-control option-input", placeholder="Option 2") }}
                 {% for error in form.option2.errors %}
                     <span class="error">{{ error }}</span>
                 {% endfor %}
             </div>
             
             <div class="form-group">
-                {{ form.option3(class="form-control", placeholder="Option 3") }}
+                {{ form.option3(class="form-control option-input", placeholder="Option 3") }}
                 {% for error in form.option3.errors %}
                     <span class="error">{{ error }}</span>
                 {% endfor %}
             </div>
             
             <div class="form-group">
-                {{ form.option4(class="form-control", placeholder="Option 4") }}
+                {{ form.option4(class="form-control option-input", placeholder="Option 4") }}
                 {% for error in form.option4.errors %}
                     <span class="error">{{ error }}</span>
                 {% endfor %}
@@ -59,6 +59,31 @@
         </form>
     </div>
 </div>
+
+<script>
+function updateCorrectAnswerOptions() {
+    const options = document.querySelectorAll('.option-input');
+    const correctAnswerSelect = document.getElementById('correct_answer');
+    
+    // Clear existing options except the default one
+    while (correctAnswerSelect.options.length > 1) {
+        correctAnswerSelect.remove(1);
+    }
+    
+    // Add new options based on input values
+    options.forEach((option, index) => {
+        if (option.value.trim()) {
+            const newOption = new Option(option.value, option.value);
+            correctAnswerSelect.add(newOption);
+        }
+    });
+}
+
+// Add event listeners to all option inputs
+document.querySelectorAll('.option-input').forEach(input => {
+    input.addEventListener('input', updateCorrectAnswerOptions);
+});
+</script>
 
 <style>
 .welcome-section {

@@ -3,86 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz System</title>
+    <title>Quiz App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            line-height: 1.6;
+            background-color: #f5f5f5;
         }
-        
-        .container {
-            max-width: 800px;
+
+        .navbar {
+            background-color: #007bff;
+            padding: 1rem;
+            color: white;
+        }
+
+        .navbar-content {
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        
-        nav {
-            background: #f8f9fa;
-            padding: 1rem 0;
-            margin-bottom: 2rem;
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
         }
-        
+
         .nav-links {
             display: flex;
-            justify-content: center;
-            gap: 1rem;
+            gap: 1.5rem;
         }
-        
+
         .nav-links a {
-            text-decoration: none;
-            color: #007bff;
-        }
-        
-        .btn {
-            padding: 0.5rem 1rem;
-            text-decoration: none;
-            border-radius: 4px;
-            background: #007bff;
             color: white;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .btn:hover {
-            background: #0056b3;
-        }
-        
-        .text-center {
-            text-align: center;
-        }
-        
-        .mb-4 {
-            margin-bottom: 2rem;
-        }
-
-        .alert {
-            padding: 1rem;
-            margin-bottom: 1rem;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
             border-radius: 4px;
+            transition: background-color 0.2s;
         }
 
-        .alert.success {
-            background: #d4edda;
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .flash-messages {
+            max-width: 800px;
+            margin: 1rem auto;
+            padding: 0 1rem;
+        }
+
+        .flash {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .flash.success {
+            background-color: #d4edda;
             color: #155724;
+            border: 1px solid #c3e6cb;
         }
 
-        .alert.error {
-            background: #f8d7da;
+        .flash.error {
+            background-color: #f8d7da;
             color: #721c24;
+            border: 1px solid #f5c6cb;
         }
     </style>
 </head>
 <body>
-    <nav>
-        <div class="container">
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="{{ url_for('routes.index') }}" class="navbar-brand">Quiz App</a>
             <div class="nav-links">
-                <a href="{{ url_for('routes.index') }}">Home</a>
                 {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('routes.dashboard') }}">Dashboard</a>
                     <a href="{{ url_for('routes.quiz') }}">Take Quiz</a>
-                    <a href="{{ url_for('routes.start_custom_quiz') }}">Custom Quiz</a>
+                    <a href="{{ url_for('routes.custom_questions') }}">My Questions</a>
+                    <a href="{{ url_for('routes.dashboard') }}">Dashboard</a>
                     <a href="{{ url_for('routes.logout') }}">Logout</a>
                 {% else %}
                     <a href="{{ url_for('routes.login') }}">Login</a>
@@ -92,18 +99,16 @@
         </div>
     </nav>
 
-    <main>
+    <div class="flash-messages">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="container text-center mb-4">
-                    {% for category, message in messages %}
-                        <div class="alert {{ category }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
             {% endif %}
         {% endwith %}
+    </div>
 
-        {% block content %}{% endblock %}
-    </main>
+    {% block content %}{% endblock %}
 </body>
 </html>

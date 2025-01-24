@@ -20,20 +20,14 @@ class QuestionForm(FlaskForm):
     option4 = StringField('Option 4', validators=[DataRequired(message='Option 4 is required')])
     correct_answer = SelectField('Correct Answer',
                                validators=[DataRequired(message='You must select the correct answer')],
-                               choices=[('', 'Select the correct answer'),
-                                      ('1', 'Option 1'),
-                                      ('2', 'Option 2'),
-                                      ('3', 'Option 3'),
-                                      ('4', 'Option 4')])
+                               choices=[('', 'Select the correct answer')])
 
     def __init__(self, *args, **kwargs):
         super(QuestionForm, self).__init__(*args, **kwargs)
-        # Update choices when the form is initialized
         self.update_choices()
 
     def update_choices(self):
-        # Update the correct answer choices based on the entered values
-        choices = []
+        choices = [('', 'Select the correct answer')]
         if self.option1.data:
             choices.append((self.option1.data, self.option1.data))
         if self.option2.data:
@@ -42,10 +36,6 @@ class QuestionForm(FlaskForm):
             choices.append((self.option3.data, self.option3.data))
         if self.option4.data:
             choices.append((self.option4.data, self.option4.data))
-        
-        if not choices:
-            choices = [('', 'Select the correct answer')]
-            
         self.correct_answer.choices = choices
 
     def validate_correct_answer(self, field):

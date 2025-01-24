@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="welcome-section">
+        <h1>{{ group.name }}</h1>
+        <p>{{ group.description }}</p>
+
+        <div class="actions">
+            <a href="{{ url_for('routes.add_question', group_id=group.id) }}" class="btn">Add Question</a>
+            <a href="{{ url_for('routes.start_group_quiz', group_id=group.id) }}" class="btn">Take Quiz</a>
+            <form method="POST" action="{{ url_for('routes.delete_group', group_id=group.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this group? This action cannot be undone.');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn delete">Delete Group</button>
+            </form>
+        </div>
+
+        {% if group.questions %}
+            <div class="questions-grid">
+                {% for question in group.questions %}
+                <div class="question-box">
+                    <p class="question-text">{{ question.text }}</p>
+                    <div class="options-list">
+                        {% for option in question.options %}
+                        <div class="option {% if option == question.correct_answer %}correct{% endif %}">{{ option }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="question-actions">
+                        <a href="{{ url_for('routes.edit_question', question_id=question.id) }}" class="btn">Edit</a>
+                        <form method="POST" action="{{ url_for('routes.delete_question', question_id=question.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this question?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn delete">Delete</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>No questions in this group yet. Add some questions to get started!</p>
+            </div>
+        {% endif %}
+
+        <div class="back-link">
+            <a href="{{ url_for('routes.custom_questions') }}" class="btn">Back to Groups</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.welcome-section {
+    text-align: center;
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 1000px;
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin: 2rem 0;
+}
+
+.questions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.question-box {
+    text-align: left;
+    padding: 1.5rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    transition: transform 0.2s;
+}
+
+.question-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.question-text {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.options-list {
+    margin: 1rem 0;
+}
+
+.option {
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    background: #f8f9fa;
+    border-radius: 4px;
+    color: #666;
+}
+
+.option.correct {
+    background: #d4edda;
+    color: #155724;
+    border-left: 3px solid #28a745;
+}
+
+.question-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 4px;
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+}
+
+.btn:hover {
+    background: #0056b3;
+}
+
+.btn.delete {
+    background: #dc3545;
+}
+
+.btn.delete:hover {
+    background: #c82333;
+}
+
+.empty-state {
+    text-align: center;
+    color: #666;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin: 2rem 0;
+}
+
+.back-link {
+    margin-top: 2rem;
+}
+
+.inline-form {
+    display: inline;
+}
+</style>
+{% endblock %} 
