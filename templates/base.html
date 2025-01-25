@@ -10,94 +10,102 @@
             margin: 0;
             padding: 0;
             background-color: #f5f5f5;
-        }
-
-        .navbar {
-            background-color: #007bff;
-            padding: 1rem;
-            color: white;
-        }
-
-        .navbar-content {
-            max-width: 1200px;
-            margin: 0 auto;
+            min-height: 100vh;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
         }
 
-        .navbar-brand {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-            text-decoration: none;
+        .top-nav {
+            width: 100%;
+            background-color: #f8f9fa;
+            padding: 0.5rem;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
         }
 
         .nav-links {
             display: flex;
-            gap: 1.5rem;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
         .nav-links a {
-            color: white;
-            text-decoration: none;
             padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: background-color 0.2s;
+            color: #333;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            background: white;
         }
 
-        .nav-links a:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+        .nav-links a.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
         }
 
         .container {
-            max-width: 1200px;
+            width: 100%;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 1rem;
+            box-sizing: border-box;
         }
 
         .flash-messages {
+            width: 100%;
             max-width: 800px;
             margin: 1rem auto;
             padding: 0 1rem;
+            box-sizing: border-box;
         }
 
         .flash {
             padding: 1rem;
-            border-radius: 4px;
             margin-bottom: 1rem;
+            text-align: center;
+            border: 1px solid #ddd;
         }
 
         .flash.success {
             background-color: #d4edda;
             color: #155724;
-            border: 1px solid #c3e6cb;
+            border-color: #c3e6cb;
         }
 
         .flash.error {
             background-color: #f8d7da;
             color: #721c24;
-            border: 1px solid #f5c6cb;
+            border-color: #f5c6cb;
+        }
+
+        .auth-links {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .auth-links a {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border: none;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="navbar-content">
-            <a href="{{ url_for('routes.index') }}" class="navbar-brand">Quiz App</a>
-            <div class="nav-links">
-                {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('routes.quiz') }}">Take Quiz</a>
-                    <a href="{{ url_for('routes.custom_questions') }}">My Questions</a>
-                    <a href="{{ url_for('routes.dashboard') }}">Dashboard</a>
-                    <a href="{{ url_for('routes.logout') }}">Logout</a>
-                {% else %}
-                    <a href="{{ url_for('routes.login') }}">Login</a>
-                    <a href="{{ url_for('routes.register') }}">Register</a>
-                {% endif %}
-            </div>
+    {% if current_user.is_authenticated %}
+    <div class="top-nav">
+        <div class="nav-links">
+            <a href="{{ url_for('routes.dashboard') }}" {% if request.endpoint == 'routes.dashboard' %}class="active"{% endif %}>Dashboard</a>
+            <a href="{{ url_for('routes.quiz') }}" {% if request.endpoint == 'routes.quiz' %}class="active"{% endif %}>Take Quiz</a>
+            <a href="{{ url_for('routes.custom_questions') }}" {% if request.endpoint == 'routes.custom_questions' %}class="active"{% endif %}>My Questions</a>
+            <a href="{{ url_for('routes.logout') }}">Logout</a>
         </div>
-    </nav>
+    </div>
+    {% endif %}
 
     <div class="flash-messages">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -110,5 +118,12 @@
     </div>
 
     {% block content %}{% endblock %}
+
+    {% if not current_user.is_authenticated %}
+        <div class="auth-links">
+            <a href="{{ url_for('routes.login') }}">Login</a>
+            <a href="{{ url_for('routes.register') }}">Register</a>
+        </div>
+    {% endif %}
 </body>
 </html>

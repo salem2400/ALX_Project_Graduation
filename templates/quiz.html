@@ -33,9 +33,9 @@
 <style>
 .welcome-section {
     text-align: center;
-    padding: 2rem;
+    max-width: 800px;
     margin: 2rem auto;
-    max-width: 600px;
+    padding: 1rem;
 }
 
 .quiz-form {
@@ -44,10 +44,9 @@
 }
 
 .question-box {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     padding: 1rem;
     border: 1px solid #ddd;
-    border-radius: 4px;
     background: white;
 }
 
@@ -58,27 +57,26 @@
 }
 
 .options {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    margin-top: 1rem;
 }
 
 .option {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    display: block;
     padding: 0.5rem;
-    cursor: pointer;
-    border-radius: 4px;
-}
-
-.option:hover {
+    margin: 0.5rem 0;
+    border: 1px solid #ddd;
     background: #f8f9fa;
 }
 
-button[type="submit"] {
-    margin-top: 2rem;
+.btn {
+    display: block;
     width: 100%;
+    padding: 0.5rem 1rem;
+    margin-top: 2rem;
+    background: #007bff;
+    color: white;
+    border: none;
+    text-align: center;
 }
 </style>
 {% endblock %}
