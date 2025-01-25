@@ -78,21 +78,6 @@
             color: #721c24;
             border-color: #f5c6cb;
         }
-
-        .auth-links {
-            text-align: center;
-            margin-top: 1rem;
-        }
-
-        .auth-links a {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            margin: 0 0.5rem;
-            background: #007bff;
-            color: white;
-            text-decoration: none;
-            border: none;
-        }
     </style>
 </head>
 <body>
@@ -118,12 +103,5 @@
     </div>
 
     {% block content %}{% endblock %}
-
-    {% if not current_user.is_authenticated %}
-        <div class="auth-links">
-            <a href="{{ url_for('routes.login') }}">Login</a>
-            <a href="{{ url_for('routes.register') }}">Register</a>
-        </div>
-    {% endif %}
 </body>
 </html>

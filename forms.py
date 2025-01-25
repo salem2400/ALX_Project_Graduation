@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField, SelectField, IntegerField, FieldList
-from wtforms.validators import DataRequired, Email, Length, EqualTo, NumberRange
+from wtforms.validators import DataRequired, Email, Length, EqualTo, NumberRange, Optional
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -52,6 +52,6 @@ class QuestionGroupForm(FlaskForm):
         validators=[Length(max=500, message='Description must not exceed 500 characters')])
     
     time_limit = IntegerField('Time Limit (minutes)',
-        validators=[DataRequired(message='Time limit is required'),
+        validators=[Optional(), 
                    NumberRange(min=1, max=180, 
                              message='Time must be between 1 and 180 minutes')]) 

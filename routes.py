@@ -206,6 +206,7 @@ def submit_group_quiz(group_id):
     quiz_result = QuizResult(
         user_id=current_user.id,
         score=percentage_score,
+        total_questions=total_questions,
         time_taken=time_taken,
         completed_at=datetime.now(),
         is_custom_quiz=True,
@@ -229,6 +230,7 @@ def submit_group_quiz(group_id):
         
         return redirect(url_for('routes.quiz_result', quiz_id=quiz_result.id))
     except Exception as e:
+        print(f"Error saving quiz result: {str(e)}")
         db.session.rollback()
         flash('An error occurred while saving your quiz result', 'error')
         return redirect(url_for('routes.custom_questions'))
