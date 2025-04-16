@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="custom-questions-container">
+    <div class="page-header">
+        <h1>Custom Question Groups</h1>
+        <div class="header-actions">
+            <a href="{{ url_for('routes.add_question_group') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Create New Group
+            </a>
+        </div>
+    </div>
+
+    {% if groups %}
+    <div class="groups-grid">
+        {% for group in groups %}
+        <div class="group-card">
+            <div class="group-header">
+                <h3>{{ group.name }}</h3>
+                <span class="question-count">
+                    <i class="fas fa-question-circle"></i>
+                    {{ group.questions|length }} Questions
+                </span>
+            </div>
+            
+            <div class="group-content">
+                <p class="group-description">{{ group.description or 'No description available' }}</p>
+                <div class="group-info">
+                    <span class="time-limit">
+                        <i class="fas fa-clock"></i>
+                        {% if group.time_limit >= 3600 %}
+                            {{ (group.time_limit / 3600)|int }} hours
+                        {% elif group.time_limit >= 60 %}
+                            {{ (group.time_limit / 60)|int }} minutes
+                        {% else %}
+                            {{ group.time_limit }} seconds
+                        {% endif %}
+                    </span>
+                    <span class="created-at">
+                        <i class="fas fa-calendar"></i>
+                        {{ group.created_at.strftime('%Y-%m-%d') }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="group-actions">
+                <a href="{{ url_for('routes.view_group_questions', group_id=group.id) }}" class="btn btn-view">
+                    <i class="fas fa-eye"></i>
+                    View Questions
+                </a>
+                <a href="{{ url_for('routes.add_question', group_id=group.id) }}" class="btn btn-add">
+                    <i class="fas fa-plus"></i>
+                    Add Question
+                </a>
+                <button class="btn btn-edit" onclick="editGroup('{{ group.id }}')">
+                    <i class="fas fa-edit"></i>
+                    Edit
+                </button>
+                <button class="btn btn-delete" onclick="deleteGroup('{{ group.id }}')">
+                    <i class="fas fa-trash"></i>
+                    Delete
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📚</div>
+        <h2>No Question Groups Found</h2>
+        <p>Create a new group to start adding questions!</p>
+        <a href="{{ url_for('routes.add_question_group') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Create New Group
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.custom-questions-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    direction: rtl;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    color: #1565C0;
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.group-card {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.group-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+}
+
+.group-header {
+    background: linear-gradient(135deg, #1565C0, #0D47A1);
+    color: white;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.group-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.question-count {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+}
+
+.group-content {
+    padding: 1.5rem;
+}
+
+.group-description {
+    color: #666;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.group-info {
+    display: flex;
+    justify-content: space-between;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.time-limit, .created-at {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.group-actions {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #1565C0, #0D47A1);
+    color: white;
+    box-shadow: 0 4px 15px rgba(21, 101, 192, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(21, 101, 192, 0.4);
+}
+
+.btn-view {
+    background: #1565C0;
+    color: white;
+}
+
+.btn-add {
+    background: #4CAF50;
+    color: white;
+}
+
+.btn-edit {
+    background: #FFC107;
+    color: #000;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-view:hover, .btn-add:hover, .btn-edit:hover, .btn-delete:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+}
+
+.empty-state h2 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .custom-questions-container {
+        padding: 1rem;
+    }
+
+    .page-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .groups-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+function editGroup(groupId) {
+    window.location.href = `/edit-question-group/${groupId}`;
+}
+
+function deleteGroup(groupId) {
+    if (confirm('Are you sure you want to delete this group? This action cannot be undone.')) {
+        fetch(`/delete-question-group/${groupId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to delete the group. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting the group.');
+        });
+    }
+}
+</script>
+{% endblock %}

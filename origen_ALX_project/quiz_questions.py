@@ -31,42 +31,5 @@ questions = [
     }
 ]
 
-default_questions = [
-    {
-        "text": "What is Python?",
-        "options": [
-            "A programming language",
-            "A snake",
-            "A text editor",
-            "An operating system"
-        ],
-        "correct_answer": "A programming language"
-    },
-    {
-        "text": "What is HTML used for?",
-        "options": [
-            "Web page structure",
-            "Database management",
-            "Server configuration",
-            "Network security"
-        ],
-        "correct_answer": "Web page structure"
-    },
-    {
-        "text": "What does CSS stand for?",
-        "options": [
-            "Cascading Style Sheets",
-            "Computer Style System",
-            "Creative Style Software",
-            "Coded Style Syntax"
-        ],
-        "correct_answer": "Cascading Style Sheets"
-    }
-]
-
 def get_questions():
     return questions
-
-def get_quiz_questions():
-    """Return a list of quiz questions."""
-    return default_questions
